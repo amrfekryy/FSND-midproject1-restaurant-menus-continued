@@ -1,15 +1,11 @@
 
-# add parent directory to python modules path.
-import sys
-sys.path.append("..")
-
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from database.db_setup import Base, Restaurant, MenuItem
 
 # connect to DB and DB tables
-engine = create_engine('sqlite:///../database/restaurantmenu.db')
+engine = create_engine('sqlite:///restaurantmenu.db')
 Base.metadata.bind = engine
 # establish 'session' connection for CRUD executions
 session = scoped_session(sessionmaker(bind=engine))

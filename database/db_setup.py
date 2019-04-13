@@ -43,7 +43,7 @@ class MenuItem(Base):
 
 # CONFIGURATION-2:
 
-if __name__ == '__main__':
+def main():
     
     # [create and] bind DB to SQLAlchemy engine
     engine = create_engine('sqlite:///restaurantmenu.db')
@@ -53,3 +53,6 @@ if __name__ == '__main__':
     print()
     print("Database has been setup")
     print()
+
+if __name__ == '__main__':
+    main()
