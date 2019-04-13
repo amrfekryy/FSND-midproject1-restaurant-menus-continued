@@ -12,6 +12,13 @@ session = scoped_session(sessionmaker(bind=engine))
 
 app = Flask(__name__)
 
+# clear session after each request
+@app.teardown_request
+def remove_session(ex=None):
+    session.remove()
+# https://stackoverflow.com/a/34010159
+# https://stackoverflow.com/q/30521112
+
 
 @app.route('/')
 @app.route('/restaurants/')
