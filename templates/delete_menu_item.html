@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Restaurant Menus</title>
+</head>
+<body>
+    
+  <h1>Are you sure you want to delete {{ restaurant.name }} > {{ menu_item.name }} ?</h1>
+  
+  <form action="{{ url_for('delete_menu_item', restaurant_id=restaurant.id, item_id=menu_item.id) }}" method="post">
+
+    <button name="answer" value="yes">YES</button>
+    <button name="answer" value="no">NO</button>
+  
+  </form>
+
+</body>
+</html>

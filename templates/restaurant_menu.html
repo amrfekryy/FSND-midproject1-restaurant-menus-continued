@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Restaurant Menus</title>
+</head>
+<body>
+
+  <h1>{{ restaurant.name }}</h1>
+  
+  <ul>
+    {% for item in menu_items %}
+    <li>
+      Name: {{ item.name }} <br>
+      Course: {{ item.course }} <br>
+      Price: {{ item.price }} <br>
+      Description: {{ item.description }} <br>
+      <a href="{{ url_for('edit_menu_item', restaurant_id=restaurant.id, item_id=item.id) }}">Edit</a>
+      <a href="{{ url_for('delete_menu_item', restaurant_id=restaurant.id, item_id=item.id) }}">Delete</a>
+      <hr>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <a href="{{ url_for('add_menu_item', restaurant_id=restaurant.id) }}">add new item</a>
+  <br>
+  <a href="{{ url_for('index') }}">HOME</a>
+
+</body>
+</html>
