@@ -18,7 +18,6 @@ app = Flask(__name__)
 def index():
 
     restaurants_list = session.query(Restaurant).all()
-
     return render_template('index.html', restaurants_list=restaurants_list)
 
 
@@ -33,6 +32,7 @@ def add_restaurant():
             new_restaurant = Restaurant(name=restaurant_name)
             session.add(new_restaurant)
             session.commit()
+            flash(f"New restaurant \"{restaurant_name}\" has been added")
             return redirect(url_for('index'))
         else:
             return "Name field is empty!"
@@ -54,6 +54,7 @@ def edit_restaurant(restaurant_id):
             restaurant.name = restaurant_new_name
             session.add(restaurant)
             session.commit()
+            flash(f"Restaurant \"{restaurant_new_name}\" has been edited")
             return redirect(url_for('index'))
         else:
             return "You haven't entered a name!"
@@ -66,14 +67,16 @@ def edit_restaurant(restaurant_id):
 def delete_restaurant(restaurant_id):
 
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
-    
+    restaurant_name = restaurant.name
+
     if request.method == 'POST':
 
         answer = request.form.get('answer')
         if answer == 'yes':
             session.delete(restaurant)
             session.commit()
-        
+            flash(f"Restaurant \"{restaurant_name}\" has been deleted")
+
         return redirect(url_for('index'))
     
     else:
@@ -104,6 +107,7 @@ def add_menu_item(restaurant_id):
             new_item = MenuItem(name=item_name, price=item_price, description=item_description, course=item_course, restaurant_id=restaurant_id)
             session.add(new_item)
             session.commit()
+            flash(f"New item \"{item_name}\" has been added")
             return redirect(url_for('restaurant_menu', restaurant_id=restaurant_id))
         else:
             return "One or more fields is empty!"
@@ -132,6 +136,7 @@ def edit_menu_item(restaurant_id, item_id):
         
         session.add(menu_item)
         session.commit()
+        flash(f"Item \"{menu_item.name}\" has been edited")
         return redirect(url_for('restaurant_menu', restaurant_id=restaurant_id))
     
     else:
@@ -143,6 +148,7 @@ def delete_menu_item(restaurant_id, item_id):
 
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
     menu_item = session.query(MenuItem).filter_by(id=item_id).one()
+    item_name = menu_item.name
 
     if request.method == 'POST':
 
@@ -150,7 +156,8 @@ def delete_menu_item(restaurant_id, item_id):
         if answer == 'yes':
             session.delete(menu_item)
             session.commit()
-        
+            flash(f"Item \"{item_name}\" has been deleted")
+
         return redirect(url_for('restaurant_menu', restaurant_id=restaurant_id))
     
     else:
