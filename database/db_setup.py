@@ -39,6 +39,18 @@ class MenuItem(Base):
     # relate MenuItem object to Restaurant object through the ForeignKey
     restaurant = relationship("Restaurant")
 
+    @property
+    def serialize(self):
+        """returns object data in easily serializable format"""
+        return {
+            'name': self.name,
+            'description': self.description,
+            'id': self.id,
+            'price': self.price,
+            'course': self.course
+        }
+    
+
 # -------------------------------------------------
 
 # CONFIGURATION-2:

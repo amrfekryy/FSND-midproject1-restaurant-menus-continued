@@ -171,6 +171,56 @@ def delete_menu_item(restaurant_id, item_id):
         return render_template('delete_menu_item.html', restaurant=restaurant, menu_item=menu_item)
 
 
+@app.route('/api/')
+@app.route('/api/all/')
+def api_all():
+    restaurants_list = session.query(Restaurant).all()
+    all_data = []
+    for restaurant in restaurants_list:
+        menu_items = session.query(MenuItem).filter_by(restaurant_id=restaurant.id).all()
+        restaurant_dict = {
+            'restaurant_id':restaurant.id,
+            'restaurant_name':restaurant.name,
+            'restaurant_menu':[item.serialize for item in menu_items]
+        }
+        all_data.append(restaurant_dict)
+
+    return jsonify(all_data)
+
+
+@app.route('/api/restaurant/<int:restaurant_id>/')
+def api_restaurant(restaurant_id):
+    try:
+        restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+        menu_items = session.query(MenuItem).filter_by(restaurant_id=restaurant_id).all()
+    except:
+        return f"There is no restaurant with id = {restaurant_id}"
+
+    restaurant_dict = {
+        'restaurant_id':restaurant.id,
+        'restaurant_name':restaurant.name,
+        'restaurant_menu':[item.serialize for item in menu_items]
+    }
+    return jsonify(restaurant_dict)
+
+
+@app.route('/api/menu_item/<int:item_id>')
+def api_menu_item(item_id):
+    try:
+        menu_item = session.query(MenuItem).filter_by(id=item_id).one()
+    except:
+        return f"There is no item with id = {item_id}"
+
+    restaurant = session.query(Restaurant).filter_by(id=menu_item.restaurant_id).one()
+
+    item_dict = {
+        'restaurant_id':restaurant.id,
+        'restaurant_name':restaurant.name,
+        f'menu_item_{item_id}':menu_item.serialize
+    }
+    return jsonify(item_dict)
+
+
 
 if __name__ == '__main__':
     app.secret_key = "super_secret_key"
