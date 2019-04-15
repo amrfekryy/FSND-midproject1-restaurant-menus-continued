@@ -171,21 +171,21 @@ def delete_menu_item(restaurant_id, item_id):
         return render_template('delete_menu_item.html', restaurant=restaurant, menu_item=menu_item)
 
 
-@app.route('/api/')
-@app.route('/api/all/')
-def api_all():
+# ~~~~~~~~ API ENDPOINTS:
+
+@app.route('/api/restaurants/')
+def api_restaurants():
     restaurants_list = session.query(Restaurant).all()
-    all_data = []
+
+    list_of_dicts = []
     for restaurant in restaurants_list:
-        menu_items = session.query(MenuItem).filter_by(restaurant_id=restaurant.id).all()
         restaurant_dict = {
             'restaurant_id':restaurant.id,
             'restaurant_name':restaurant.name,
-            'restaurant_menu':[item.serialize for item in menu_items]
         }
-        all_data.append(restaurant_dict)
-
-    return jsonify(all_data)
+        list_of_dicts.append(restaurant_dict)
+    
+    return jsonify({'restaurants':list_of_dicts})
 
 
 @app.route('/api/restaurant/<int:restaurant_id>/')
@@ -204,7 +204,7 @@ def api_restaurant(restaurant_id):
     return jsonify(restaurant_dict)
 
 
-@app.route('/api/menu_item/<int:item_id>')
+@app.route('/api/menu_item/<int:item_id>/')
 def api_menu_item(item_id):
     try:
         menu_item = session.query(MenuItem).filter_by(id=item_id).one()
@@ -216,10 +216,25 @@ def api_menu_item(item_id):
     item_dict = {
         'restaurant_id':restaurant.id,
         'restaurant_name':restaurant.name,
-        f'menu_item_{item_id}':menu_item.serialize
+        'menu_item':menu_item.serialize
     }
     return jsonify(item_dict)
 
+
+@app.route('/api/all/')
+def api_all():
+    restaurants_list = session.query(Restaurant).all()
+    all_data = []
+    for restaurant in restaurants_list:
+        menu_items = session.query(MenuItem).filter_by(restaurant_id=restaurant.id).all()
+        restaurant_dict = {
+            'restaurant_id':restaurant.id,
+            'restaurant_name':restaurant.name,
+            'restaurant_menu':[item.serialize for item in menu_items]
+        }
+        all_data.append(restaurant_dict)
+
+    return jsonify({'restaurant_menus':all_data})
 
 
 if __name__ == '__main__':
