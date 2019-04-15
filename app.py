@@ -173,6 +173,11 @@ def delete_menu_item(restaurant_id, item_id):
 
 # ~~~~~~~~ API ENDPOINTS:
 
+@app.route('/api/')
+def api():
+    return render_template('api.html')
+
+
 @app.route('/api/restaurants/')
 def api_restaurants():
     restaurants_list = session.query(Restaurant).all()

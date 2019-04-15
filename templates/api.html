@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Restaurant Menus</title>
+</head>
+<body>
+
+  <h3>Usage:</h3>
+
+  <ul>
+    <li>
+      For a list of all restaurants names and IDs
+      <pre>/api/restaurants/</pre>
+    </li>
+    <hr>
+    <li>
+      For a specific restaurant data
+      <pre>/api/restaurant/&#60;restaurant_id&#62;/</pre>
+      replace <code>&#60;restaurant_id&#62;</code> with the equivalent id from <code>/api/restaurants/</code>
+    </li>
+    <hr>
+    <li>
+      For a specific menu item data
+      <pre>/api/menu_item/&#60;item_id&#62;/</pre>
+      replace <code>&#60;item_id&#62;</code> with the equivalent id from <code>/api/restaurant/&#60;restaurant_id&#62;/</code>
+    </li>
+    <hr>
+    <li>
+      For a list of all restaurants and their menus
+      <pre>/api/all/</pre>
+    </li>
+    <hr>
+  </ul>
+
+</body>
+</html>
