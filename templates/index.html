@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Restaurant Menus</title>
-</head>
-<body>
+{% extends 'layout.html' %}
+
+{% block body %}
 
   <h1>Restaurants</h1>
 
@@ -33,5 +29,4 @@
   <br>
   <a href="{{ url_for('api') }}">API</a>
 
-</body>
-</html>
+{% endblock %}

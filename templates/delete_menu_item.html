@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Restaurant Menus</title>
-</head>
-<body>
+{% extends 'layout.html' %}
+
+{% block body %}
     
   <h1>Are you sure you want to delete {{ restaurant.name }} > {{ menu_item.name }} ?</h1>
   
@@ -15,5 +11,4 @@
   
   </form>
 
-</body>
-</html>
+{% endblock %}
