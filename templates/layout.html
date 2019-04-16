@@ -3,9 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <title>Restaurant Menus</title>
-</head>
-<body>
-  {% block body %}
+  <!-- Add Bootstrap -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  {% block style %}
   {% endblock %}
+</head>
+<body style="background-color: #DDD">
+  <div class="container-fluid p-5">
+    {% block body %}
+    {% endblock %}
+  </div>
 </body>
 </html>

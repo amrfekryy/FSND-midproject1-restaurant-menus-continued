@@ -83,8 +83,8 @@ def delete_restaurant(restaurant_id):
             session.delete(restaurant)
             session.commit()
             flash(f"Restaurant \"{restaurant_name}\" has been deleted")
-
-        return redirect(url_for('index'))
+            return redirect(url_for('index'))
+        return redirect(url_for('restaurant_menu', restaurant_id=restaurant_id))
     
     else:
         return render_template('delete_restaurant.html', restaurant=restaurant)

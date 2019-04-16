@@ -2,7 +2,20 @@
 
 {% block body %}
 
-  <h1>Restaurants</h1>
+  <div class="row justify-content-between mb-2">
+    
+    <div class="col-8 ml-2">
+      <h3 style="display: inline-block;">Restaurants</h3>
+      (<a href="{{ url_for('add_restaurant') }}">Add</a>)
+    </div>
+    
+    <div class="col-2 mr-2">
+      <div style="text-align: right; position: relative; top:30%">  
+        <a href="{{ url_for('api') }}">API</a>
+      </div>
+    </div>
+  
+  </div>
 
   {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -14,19 +27,10 @@
     {% endif %}
   {% endwith %}
   
-  <ul>
+  <div class="list-group">
     {% for restaurant in restaurants_list %}
-    <li>
-      <a href="{{ url_for('restaurant_menu', restaurant_id=restaurant.id) }}">{{ restaurant.name }}</a>
-      <br>
-      <a href="{{ url_for('edit_restaurant', restaurant_id=restaurant.id) }}">Edit</a>
-      <a href="{{ url_for('delete_restaurant', restaurant_id=restaurant.id) }}">Delete</a>
-      <hr>
-    </li>
+      <a href="{{ url_for('restaurant_menu', restaurant_id=restaurant.id) }}" class="list-group-item list-group-item-action">{{ restaurant.name }}</a>
     {% endfor %}
-  </ul>
-  <a href="{{ url_for('add_restaurant') }}">add new restaurant</a>
-  <br>
-  <a href="{{ url_for('api') }}">API</a>
+  </div>
 
 {% endblock %}

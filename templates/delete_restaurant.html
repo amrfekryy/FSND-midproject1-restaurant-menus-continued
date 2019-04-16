@@ -2,7 +2,8 @@
 
 {% block body %}
 
-  <h1>Are you sure you want to delete {{ restaurant.name }} ?</h1>
+  <h3>Are you sure you want to delete ( {{ restaurant.name }} ) ?</h3>
+  <br>
 
   <form action="{{ url_for('delete_restaurant', restaurant_id=restaurant.id) }}" method="post">
 

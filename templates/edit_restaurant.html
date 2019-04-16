@@ -2,15 +2,15 @@
 
 {% block body %}
 
+  <h3>Edit ( {{ restaurant.name }} )</h3>
+  <br>
+  
   <form action="{{ url_for('edit_restaurant', restaurant_id=restaurant.id) }}" method="post">
     
-    <h1>Edit {{ restaurant.name }}</h1>
-
-    <input name="restaurant_new_name" type="text" placeholder="{{ restaurant.name }}">
+    <input name="restaurant_new_name" type="text" placeholder="{{ restaurant.name }}" style="width:250px">
         
-    <br><br>
     <input type="submit" value="Edit">
-    <a href="{{ url_for('index') }}">Cancel</a>
+    <a href="{{ url_for('restaurant_menu', restaurant_id=restaurant.id) }}">Cancel</a>
   
   </form>
 

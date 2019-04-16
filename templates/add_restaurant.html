@@ -2,13 +2,13 @@
 
 {% block body %}
   
-  <h1>Add New Restaurant</h1>
+  <h3>Add New Restaurant</h3>
+  <br>
   
   <form action="{{ url_for('add_restaurant') }}" method="post">
 
-    <input name="restaurant_name" type="text" placeholder="Restaurant Name">
+    <input name="restaurant_name" type="text" placeholder="Restaurant Name" style="width:250px">
 
-    <br><br>
     <input type="submit" value="Add">
     <a href="{{ url_for('index') }}">Cancel</a>
   
