@@ -4,6 +4,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from database.db_setup import Base, Restaurant, MenuItem
 
+from flask import session as flask_session
+import random, string
+
 # connect to DB and DB tables
 engine = create_engine('sqlite:///restaurantmenu.db')
 Base.metadata.bind = engine
@@ -12,12 +15,20 @@ session = scoped_session(sessionmaker(bind=engine))
 
 app = Flask(__name__)
 
-# clear session after each request
+# clear orm session after each request
 @app.teardown_request
 def remove_session(ex=None):
     session.remove()
 # https://stackoverflow.com/a/34010159
 # https://stackoverflow.com/q/30521112
+
+
+@app.route('/login/')
+def login():
+    # create anti-forgery state token
+    state_token = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
+    flask_session['state_token'] = state_token
+    return f"Current session state token in {flask_session.get('state_token')}"
 
 
 @app.route('/')
