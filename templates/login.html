@@ -1,0 +1,93 @@
+{% extends 'layout.html' %}
+
+<!-- 
+Google Sign-In for server-side apps
+
+https://developers.google.com/identity/sign-in/web/server-side-flow 
+-->
+
+<!-- Step 1: Create a client ID and client secret -->
+
+{% block head %}
+
+<!-- Step 2: Include the Google platform library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+
+<!-- Step 3: Initialize the GoogleAuth object -->
+<script>
+  function start() {
+    gapi.load('auth2', function() {
+      auth2 = gapi.auth2.init({
+        client_id: '833987237822-k85d1lfv9a2b4ah7p1ss6sfm5aqk96k6.apps.googleusercontent.com'
+        // Add more scopes to request in addition to 'profile' and 'email'
+        //scope: 'additional_scope'
+      });
+    });
+  }
+</script>
+
+{% endblock %}
+
+
+{% block body %}
+
+<!-- Step 4: Add the sign-in button to your page -->
+<!-- Add where you want your sign-in button to render -->
+<!-- Use an image that follows the branding guidelines in a real app -->
+<button id="signinButton">Sign in with Google</button>
+
+<!-- Steps 5 & 6 -->
+<div id="result"></div>
+<script>
+
+  $('#signinButton').click(function() {
+    
+    // Step 6: Send authorization code to the server
+    function signInCallback(authResult){
+      // Check one-time-auth-code is present
+      if (authResult['code']){
+        // Hide the sign-in button now that the user is authorized
+        $('#signinButton').attr('style', 'display: none');
+        // Send one-time-auth-code to the server
+        $.ajax({
+          // Set method and route, passing the anti-forgery-state-token
+          type: 'POST',
+          url: '/gconnect?state={{state_token}}',
+          // Always include this header in every AJAX request, to protect against CSRF attacks.
+          headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+          },
+          // octet-stream: arbitrary, binary stream of data
+          contentType: 'application/octet-stream; charset=utf-8',
+          // On 200 response from server
+          success:function(result){
+            // Handle or verify server response.
+            $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
+                 // Redirect user
+                 setTimeout(function() {
+                  window.location.href = "/";
+                 }, 2000);
+          },
+          // don't process reponse into a string
+          processData:false,
+          // data to send to server
+          data:authResult['code']
+        });
+      } else{ // authResult['error'] present
+        // Handle error
+        console.log('There was an error: ' + authResult['error']);
+        $('#result').html('Failed to make a server-side call. Check your configuration and console.');
+      }
+    }
+    // Step 5: Sign in the user
+    // user grants access on google's sign-in click (client recieves access-token, one-time-auth-code)
+    // call signInCallback({"code":"one-time-auth-code")
+    auth2.grantOfflineAccess().then(signInCallback);
+  });
+
+</script>
+
+<!-- Step 7: Exchange the authorization code for an access token on server-side -->
+
+{% endblock %}

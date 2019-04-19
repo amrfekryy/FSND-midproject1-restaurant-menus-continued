@@ -28,7 +28,8 @@ def login():
     # create anti-forgery state token
     state_token = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
     flask_session['state_token'] = state_token
-    return f"Current session state token in {flask_session.get('state_token')}"
+    # return f"Current session state token in {flask_session.get('state_token')}"
+    return render_template('login.html', state_token=state_token)
 
 
 @app.route('/')
