@@ -123,6 +123,30 @@ def gconnect():
     return output
 
 
+@app.route('/gdisconnect')
+def gdisconnect():
+
+    # Verify user is already logged in
+    access_token = login_session.get('access_token')
+    if access_token is None:
+        response = make_response(json.dumps('Current user not connected.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # make a request to revoke token 
+    url = f"https://accounts.google.com/o/oauth2/revoke?token={login_session['access_token']}"
+    h = httplib2.Http()
+    result = h.request(url, 'GET')[0]
+    if result['status'] == '200':
+        login_session.clear() # https://stackoverflow.com/q/27747578
+        response = make_response(json.dumps('Successfully disconnected.'), 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    else:
+        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
 
 @app.route('/')
 @app.route('/restaurants/')
