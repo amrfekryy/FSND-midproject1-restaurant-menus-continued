@@ -53,7 +53,7 @@ https://developers.google.com/identity/sign-in/web/server-side-flow
         $.ajax({
           // Set method and route, passing the anti-forgery-state-token
           type: 'POST',
-          url: '/gconnect?state={{state_token}}',
+          url: '/gconnect?state_token={{state_token}}',
           // Always include this header in every AJAX request, to protect against CSRF attacks.
           headers: {
           'X-Requested-With': 'XMLHttpRequest'

@@ -4,8 +4,18 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from database.db_setup import Base, Restaurant, MenuItem
 
-from flask import session as flask_session
+from flask import session as login_session
 import random, string
+
+# from apiclient import discovery
+from oauth2client import client
+import httplib2
+import json
+from flask import make_response
+import requests
+
+# get client id from client_secrets.json
+CLIENT_ID = json.loads(open('client_secrets.json','r').read())['web']['client_id']
 
 # connect to DB and DB tables
 engine = create_engine('sqlite:///restaurantmenu.db')
@@ -27,9 +37,91 @@ def remove_session(ex=None):
 def login():
     # create anti-forgery state token
     state_token = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
-    flask_session['state_token'] = state_token
-    # return f"Current session state token in {flask_session.get('state_token')}"
+    login_session['state_token'] = state_token
+    # return f"Current session state token in {login_session.get('state_token')}"
     return render_template('login.html', state_token=state_token)
+
+
+# https://developers.google.com/identity/sign-in/web/server-side-flow
+@app.route('/gconnect', methods=['POST'])
+def gconnect():
+    
+    # Check state_token to protect against CSRF
+    if request.args.get('state_token') != login_session['state_token']:
+        # create a response object manually and attach a header
+        response = make_response(json.dumps('Invalid state token parameter'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    
+    # Collect one-time-auth-code from request
+    auth_code = request.data
+    print(auth_code)
+
+    # Exchange auth code for credentials obj containing access token, refresh token, and ID token
+    try:
+        oauth_flow_obj = client.flow_from_clientsecrets('client_secrets.json', scope='')
+        oauth_flow_obj.redirect_uri = 'postmessage' # confirm it is one-time-auth-code
+        credentials_obj = oauth_flow_obj.step2_exchange(auth_code) # initiate exchange
+    except client.FlowExchangeError:
+        response = make_response(json.dumps('Failed to upgrade the authorization code'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # Check access token is valid
+    access_token = credentials_obj.access_token
+    url = f'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={access_token}'
+    h = httplib2.Http()
+    result = json.loads(h.request(url, 'GET')[1])
+    if result.get('error') is not None:
+        response = make_response(json.dumps(result.get('error')), 500)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    # Verify access token is used for the intended user.
+    user_id_from_credentials = credentials_obj.id_token['sub']
+    if result['user_id'] != user_id_from_credentials:
+        response = make_response(json.dumps("Token's user ID doesn't match given user ID."), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    # Verify access token is valid for this app.
+    if result['issued_to'] != CLIENT_ID:
+        response = make_response(json.dumps("Token's client ID does not match app's."), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    # Verify user is already logged in
+    stored_access_token = login_session.get('access_token')
+    stored_user_id = login_session.get('user_id')
+    if stored_access_token is not None and user_id_from_credentials == stored_user_id:
+        response = make_response(json.dumps('Current user is already connected.'), 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # After passing above verifications:
+    # Store credentials if in session for later use.
+    login_session['access_token'] = credentials_obj.access_token
+    login_session['user_id'] = user_id_from_credentials
+
+    # Get some user info
+    userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
+    params = {'access_token': credentials_obj.access_token, 'alt': 'json'}
+    answer = requests.get(userinfo_url, params=params)
+
+    data = answer.json()
+
+    login_session['username'] = data['name']
+    login_session['picture'] = data['picture']
+    login_session['email'] = data['email']
+
+    output = ''
+    output += '<h1>Welcome, '
+    output += login_session['username']
+    output += '!</h1>'
+    output += '<img src="'
+    output += login_session['picture']
+    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    flash(f"you are now logged in as {login_session['username']}")
+
+    return output
+
 
 
 @app.route('/')
