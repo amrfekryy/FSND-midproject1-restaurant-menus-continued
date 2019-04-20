@@ -22,7 +22,7 @@ Base.metadata.bind = engine
 # establish 'session' connection for CRUD executions
 session = scoped_session(sessionmaker(bind=engine))
 
-# get client id from client_secrets.json
+# get client id from client_secrets.json that access token will be issued to
 CLIENT_ID = json.loads(open('client_secrets.json','r').read())['web']['client_id']
 
 from functools import wraps
@@ -69,13 +69,18 @@ def gconnect():
     
     # Collect one-time-auth-code from request
     auth_code = request.data
-    print(auth_code)
 
     # Exchange auth code for credentials obj containing access token, refresh token, and ID token
     try:
-        oauth_flow_obj = client.flow_from_clientsecrets('client_secrets.json', scope='')
-        oauth_flow_obj.redirect_uri = 'postmessage' # confirm it is one-time-auth-code
-        credentials_obj = oauth_flow_obj.step2_exchange(auth_code) # initiate exchange
+        # new method
+        credentials_obj = client.credentials_from_clientsecrets_and_code(
+            'client_secrets.json',
+            ['https://www.googleapis.com/auth/drive.appdata', 'profile', 'email'],
+            auth_code)
+        # lesson method:
+        # oauth_flow_obj = client.flow_from_clientsecrets('client_secrets.json', scope='')
+        # oauth_flow_obj.redirect_uri = 'postmessage' # confirm it is one-time-auth-code
+        # credentials_obj = oauth_flow_obj.step2_exchange(auth_code) # initiate exchange
     except client.FlowExchangeError:
         response = make_response(json.dumps('Failed to upgrade the authorization code'), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -86,7 +91,7 @@ def gconnect():
     url = f'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={access_token}'
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
-    if result.get('error') is not None:
+    if result.get('error'):
         response = make_response(json.dumps(result.get('error')), 500)
         response.headers['Content-Type'] = 'application/json'
         return response
@@ -101,40 +106,27 @@ def gconnect():
         response = make_response(json.dumps("Token's client ID does not match app's."), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
-    # Verify user is already logged in
-    stored_access_token = login_session.get('access_token')
-    stored_user_id = login_session.get('user_id')
-    if stored_access_token is not None and user_id_from_credentials == stored_user_id:
+    # Check user is already logged in
+    if login_session.get('access_token'):
         response = make_response(json.dumps('Current user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
     # After passing above verifications:
-    # Store credentials if in session for later use.
+    # Store credentials in session for later use.
     login_session['access_token'] = credentials_obj.access_token
-    login_session['user_id'] = user_id_from_credentials
+    login_session['user_id'] = credentials_obj.id_token['sub']
+    login_session['username'] = credentials_obj.id_token['name']
+    login_session['picture'] = credentials_obj.id_token['picture']
+    login_session['email'] = credentials_obj.id_token['email']
 
-    # Get some user info
-    userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
-    params = {'access_token': credentials_obj.access_token, 'alt': 'json'}
-    answer = requests.get(userinfo_url, params=params)
-
-    data = answer.json()
-
-    login_session['username'] = data['name']
-    login_session['picture'] = data['picture']
-    login_session['email'] = data['email']
-
-    output = ''
-    output += '<h1>Welcome, '
-    output += login_session['username']
-    output += '!</h1>'
-    output += '<img src="'
-    output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     flash(f"you are now logged in as {login_session['username']}")
-
-    return output
+    
+    # return successful response to client-side ajax request   
+    return f"""
+        <h1>Welcome, {login_session['username']}!</h1>
+        <img src="{login_session['picture']}" style = "width:300px; height:300px; border-radius:150px; -webkit-border-radius:150px; -moz-border-radius:150px;">
+    """
 
 
 @app.route('/gdisconnect')
