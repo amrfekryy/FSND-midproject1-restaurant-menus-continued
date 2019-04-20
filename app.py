@@ -1,5 +1,6 @@
-
+# flask 
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+# database
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from database.db_setup import Base, Restaurant, MenuItem
@@ -7,15 +8,13 @@ from database.db_setup import Base, Restaurant, MenuItem
 from flask import session as login_session
 import random, string
 
-# from apiclient import discovery
 from oauth2client import client
 import httplib2
 import json
 from flask import make_response
 import requests
 
-# get client id from client_secrets.json
-CLIENT_ID = json.loads(open('client_secrets.json','r').read())['web']['client_id']
+app = Flask(__name__)
 
 # connect to DB and DB tables
 engine = create_engine('sqlite:///restaurantmenu.db')
@@ -23,7 +22,21 @@ Base.metadata.bind = engine
 # establish 'session' connection for CRUD executions
 session = scoped_session(sessionmaker(bind=engine))
 
-app = Flask(__name__)
+# get client id from client_secrets.json
+CLIENT_ID = json.loads(open('client_secrets.json','r').read())['web']['client_id']
+
+from functools import wraps
+def login_required(f):
+    """
+    Decorate routes to require login.
+    http://flask.pocoo.org/docs/0.12/patterns/viewdecorators/
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not login_session.get('user_id'):
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 # clear orm session after each request
 @app.teardown_request
@@ -41,6 +54,7 @@ def login():
     # return f"Current session state token in {login_session.get('state_token')}"
     return render_template('login.html', state_token=state_token)
 
+# ~~~~~~~~ GOOGLE SIGN IN:
 
 # https://developers.google.com/identity/sign-in/web/server-side-flow
 @app.route('/gconnect', methods=['POST'])
@@ -148,6 +162,8 @@ def gdisconnect():
         return response
 
 
+# ~~~~~~~~ APP PAGES:
+
 @app.route('/')
 @app.route('/restaurants/')
 def index():
@@ -157,6 +173,7 @@ def index():
 
 
 @app.route('/restaurants/add/', methods=['GET', 'POST'])
+@login_required
 def add_restaurant():
     
     if request.method == 'POST':
@@ -177,6 +194,7 @@ def add_restaurant():
 
 
 @app.route('/restaurants/<int:restaurant_id>/edit', methods=['GET', 'POST'])
+@login_required
 def edit_restaurant(restaurant_id):
 
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -199,6 +217,7 @@ def edit_restaurant(restaurant_id):
 
 
 @app.route('/restaurants/<int:restaurant_id>/delete', methods=['GET', 'POST'])
+@login_required
 def delete_restaurant(restaurant_id):
 
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -229,6 +248,7 @@ def restaurant_menu(restaurant_id):
 
 
 @app.route('/restaurants/<int:restaurant_id>/menu/add', methods=['GET', 'POST'])
+@login_required
 def add_menu_item(restaurant_id):
 
     if request.method == 'POST':
@@ -252,6 +272,7 @@ def add_menu_item(restaurant_id):
 
 
 @app.route('/restaurants/<int:restaurant_id>/menu/<int:item_id>/edit', methods=['GET', 'POST'])
+@login_required
 def edit_menu_item(restaurant_id, item_id):
 
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -279,6 +300,7 @@ def edit_menu_item(restaurant_id, item_id):
 
 
 @app.route('/restaurants/<int:restaurant_id>/menu/<int:item_id>/delete', methods=['GET', 'POST'])
+@login_required
 def delete_menu_item(restaurant_id, item_id):
 
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -307,6 +329,7 @@ def api():
 
 
 @app.route('/api/restaurants/')
+@login_required
 def api_restaurants():
     restaurants_list = session.query(Restaurant).all()
 
@@ -322,6 +345,7 @@ def api_restaurants():
 
 
 @app.route('/api/restaurant/<int:restaurant_id>/')
+@login_required
 def api_restaurant(restaurant_id):
     try:
         restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -338,6 +362,7 @@ def api_restaurant(restaurant_id):
 
 
 @app.route('/api/menu_item/<int:item_id>/')
+@login_required
 def api_menu_item(item_id):
     try:
         menu_item = session.query(MenuItem).filter_by(id=item_id).one()
@@ -355,6 +380,7 @@ def api_menu_item(item_id):
 
 
 @app.route('/api/all/')
+@login_required
 def api_all():
     restaurants_list = session.query(Restaurant).all()
     all_data = []
