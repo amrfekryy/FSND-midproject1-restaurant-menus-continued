@@ -1,13 +1,14 @@
 
 # flask
 from flask import ( 
-	Blueprint, render_template, request, flash, 
-	session as login_session )
+    Blueprint, render_template, request, flash, 
+    session as login_session )
 # general
 import random, string
 from oauth2client import client
 import httplib2
 import json
+import requests
 from helpers import *
 
 
@@ -48,6 +49,7 @@ def gconnect():
             'client_secrets.json',
             ['https://www.googleapis.com/auth/drive.appdata', 'profile', 'email'],
             auth_code)
+        print(credentials_obj.access_token)
         # lesson method:
         # oauth_flow_obj = client.flow_from_clientsecrets('client_secrets.json', scope='')
         # oauth_flow_obj.redirect_uri = 'postmessage' # confirm it is one-time-auth-code
@@ -100,10 +102,16 @@ def gdisconnect():
         return json_mime_response('Current user not connected.', 401)
 
     # make a request to revoke token 
-    url = f"https://accounts.google.com/o/oauth2/revoke?token={login_session['access_token']}"
-    h = httplib2.Http()
-    result = h.request(url, 'GET')[0]
-    if result['status'] == '200':
+    # url = f"https://accounts.google.com/o/oauth2/revoke?token={login_session['access_token']}"
+    # h = httplib2.Http()
+    # result = h.request(url, 'GET')[0]
+    r = requests.post('https://accounts.google.com/o/oauth2/revoke',
+        params={'token': login_session['access_token']},
+        headers = {'content-type': 'application/x-www-form-urlencoded'})
+    result = r.json()
+    print(login_session['access_token'])
+    print(result)
+    if result.get('status') == '200' or result.get('error') == 'invalid_token':
         login_session.clear() # https://stackoverflow.com/q/27747578
         return json_mime_response('Successfully disconnected.', 200)
     else:
