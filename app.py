@@ -1,19 +1,21 @@
-# flask 
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+# flask
+from flask import ( 
+    Flask, render_template, request, redirect, 
+    url_for, flash, jsonify, make_response, 
+    session as login_session )
 # database
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from database.db_setup import Base, Restaurant, MenuItem
-
-from flask import session as login_session
+# general
 import random, string
-
 from oauth2client import client
 import httplib2
 import json
-from flask import make_response
 import requests
+from helpers import *
 
+# initialize flask app
 app = Flask(__name__)
 
 # connect to DB and DB tables
@@ -25,18 +27,6 @@ session = scoped_session(sessionmaker(bind=engine))
 # get client id from client_secrets.json that access token will be issued to
 CLIENT_ID = json.loads(open('client_secrets.json','r').read())['web']['client_id']
 
-from functools import wraps
-def login_required(f):
-    """
-    Decorate routes to require login.
-    http://flask.pocoo.org/docs/0.12/patterns/viewdecorators/
-    """
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not login_session.get('user_id'):
-            return redirect(url_for('login'))
-        return f(*args, **kwargs)
-    return decorated_function
 
 # clear orm session after each request
 @app.teardown_request
@@ -62,10 +52,7 @@ def gconnect():
     
     # Check state_token to protect against CSRF
     if request.args.get('state_token') != login_session['state_token']:
-        # create a response object manually and attach a header
-        response = make_response(json.dumps('Invalid state token parameter'), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        return json_mime_response('Invalid state token parameter', 401)
     
     # Collect one-time-auth-code from request
     auth_code = request.data
@@ -82,9 +69,7 @@ def gconnect():
         # oauth_flow_obj.redirect_uri = 'postmessage' # confirm it is one-time-auth-code
         # credentials_obj = oauth_flow_obj.step2_exchange(auth_code) # initiate exchange
     except client.FlowExchangeError:
-        response = make_response(json.dumps('Failed to upgrade the authorization code'), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        return json_mime_response('Failed to upgrade the authorization code', 401)
 
     # Check access token is valid
     access_token = credentials_obj.access_token
@@ -92,25 +77,18 @@ def gconnect():
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
     if result.get('error'):
-        response = make_response(json.dumps(result.get('error')), 500)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        return json_mime_response(result.get('error'), 500)
+
     # Verify access token is used for the intended user.
     user_id_from_credentials = credentials_obj.id_token['sub']
     if result['user_id'] != user_id_from_credentials:
-        response = make_response(json.dumps("Token's user ID doesn't match given user ID."), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        return json_mime_response("Token's user ID doesn't match given user ID.", 401)
     # Verify access token is valid for this app.
     if result['issued_to'] != CLIENT_ID:
-        response = make_response(json.dumps("Token's client ID does not match app's."), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        return json_mime_response("Token's client ID does not match app's.", 401)
     # Check user is already logged in
     if login_session.get('access_token'):
-        response = make_response(json.dumps('Current user is already connected.'), 200)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        return json_mime_response('Current user is already connected.', 200)
 
     # After passing above verifications:
     # Store credentials in session for later use.
@@ -135,9 +113,7 @@ def gdisconnect():
     # Verify user is already logged in
     access_token = login_session.get('access_token')
     if access_token is None:
-        response = make_response(json.dumps('Current user not connected.'), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        return json_mime_response('Current user not connected.', 401)
 
     # make a request to revoke token 
     url = f"https://accounts.google.com/o/oauth2/revoke?token={login_session['access_token']}"
@@ -145,13 +121,9 @@ def gdisconnect():
     result = h.request(url, 'GET')[0]
     if result['status'] == '200':
         login_session.clear() # https://stackoverflow.com/q/27747578
-        response = make_response(json.dumps('Successfully disconnected.'), 200)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        return json_mime_response('Successfully disconnected.', 200)
     else:
-        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        return json_mime_response('Failed to revoke token for given user.', 400)
 
 
 # ~~~~~~~~ APP PAGES:
