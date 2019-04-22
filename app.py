@@ -108,9 +108,7 @@ def delete_restaurant(restaurant_id):
 def restaurant_menu(restaurant_id):
 
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
-    menu_items = session.query(MenuItem).filter_by(restaurant_id=restaurant_id).all()
-
-    return render_template('restaurant_menu.html', restaurant=restaurant, menu_items=menu_items)
+    return render_template('restaurant_menu.html', restaurant=restaurant, menu_items=restaurant.menu_items)
 
 
 @app.route('/restaurants/<int:restaurant_id>/menu/add', methods=['GET', 'POST'])

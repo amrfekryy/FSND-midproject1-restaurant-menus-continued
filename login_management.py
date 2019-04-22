@@ -28,14 +28,6 @@ login_management = Blueprint('login_management', __name__,
 CLIENT_ID = json.loads(open('client_secrets.json','r').read())['web']['client_id']
 
 
-# # clear orm session after each request
-# @login_management.teardown_request
-# def remove_session(ex=None):
-#     session.remove()
-# # https://stackoverflow.com/a/34010159
-# # https://stackoverflow.com/q/30521112
-
-
 @login_management.route('/login/')
 def login():
     # create anti-forgery state token
