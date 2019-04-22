@@ -16,40 +16,76 @@ Base = declarative_base()
 # TABLES OOD:
 # transform db_design.sql into object oriented design
 
-class Restaurant(Base):
-    __tablename__ = 'restaurant'
+class User(Base):
+    __tablename__ = 'users'
 
     id = Column(Integer, primary_key = True)
     name = Column(String(80), nullable = False)
+    email = Column(String(80), nullable = False)
+    picture = Column(String(250))
 
-    # relate MenuItem object to Restaurant object through the ForeignKey
     menu_items = relationship("MenuItem")
-
-
-class MenuItem(Base):
-    __tablename__ = 'menu_item'
-
-    id = Column(Integer, primary_key = True)
-    name = Column(String(80), nullable = False)
-    course = Column(String(250))
-    description = Column(String(250))
-    price = Column(String(8))
-    restaurant_id = Column(Integer, ForeignKey('restaurant.id'))
-
-    # relate MenuItem object to Restaurant object through the ForeignKey
-    restaurant = relationship("Restaurant")
+    restaurants = relationship("Restaurant")
 
     @property
     def serialize(self):
         """returns object data in easily serializable format"""
         return {
-            'name': self.name,
-            'description': self.description,
             'id': self.id,
-            'price': self.price,
-            'course': self.course
+            'name': self.name,
+            'email': self.email,
+            'picture': self.picture
         }
-    
+
+
+class Restaurant(Base):
+    __tablename__ = 'restaurants'
+
+    id = Column(Integer, primary_key = True)
+    name = Column(String(80), nullable = False)
+    user_id = Column(Integer, ForeignKey('users.id'))
+
+    menu_items = relationship("MenuItem")
+    user = relationship("User")
+
+    @property
+    def serialize(self):
+        """returns object data in easily serializable format"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'user_id': self.user_id
+        }
+
+
+class MenuItem(Base):
+    __tablename__ = 'menu_items'
+
+    id = Column(Integer, primary_key = True)
+    name = Column(String(80), nullable = False)
+    course = Column(String(80), nullable = False)
+    description = Column(String(250), nullable = False)
+    price = Column(String(10), nullable = False)
+    restaurant_id = Column(Integer, ForeignKey('restaurants.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
+
+    restaurant = relationship("Restaurant")
+    user = relationship("User")
+
+    @property
+    def serialize(self):
+        """returns object data in easily serializable format"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'course': self.course,
+            'description': self.description,
+            'price': self.price,
+            'restaurant_id': self.restaurant_id,
+            'user_id': self.user_id
+        }
+
+
 
 # -------------------------------------------------
 

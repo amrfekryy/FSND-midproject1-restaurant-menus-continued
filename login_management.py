@@ -1,3 +1,6 @@
+# add database directory to python modules path.
+import sys
+sys.path.append("./database/")
 
 # flask
 from flask import ( 

@@ -27,7 +27,7 @@ def main():
 		print()
 		
 		for index, restaurant in enumerate(restaurants):
-			print(f"{index+1}- {restaurant.name}:")
+			print(f"{index+1}- {restaurant.name}: (created by {restaurant.user.name})")
 			for index2, item in enumerate(restaurant.menu_items):
 				print(f"  {index2+1}- {item.name}")
 	print()
