@@ -14,6 +14,14 @@ api_management = Blueprint('api_management', __name__,
                      static_folder='static')
 
 
+# # clear orm session after each request
+# @api_management.teardown_request
+# def remove_session(ex=None):
+#     session.remove()
+# # https://stackoverflow.com/a/34010159
+# # https://stackoverflow.com/q/30521112
+
+
 @api_management.route('/api/')
 def api():
     return render_template('api.html')

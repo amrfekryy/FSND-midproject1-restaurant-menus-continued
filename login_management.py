@@ -10,6 +10,8 @@ import httplib2
 import json
 import requests
 from helpers import *
+# database
+from db_session import session, Restaurant, MenuItem
 
 
 # create blueprint
@@ -21,6 +23,14 @@ login_management = Blueprint('login_management', __name__,
 
 # get client id client_secrets file that access token will be issued to
 CLIENT_ID = json.loads(open('client_secrets.json','r').read())['web']['client_id']
+
+
+# # clear orm session after each request
+# @login_management.teardown_request
+# def remove_session(ex=None):
+#     session.remove()
+# # https://stackoverflow.com/a/34010159
+# # https://stackoverflow.com/q/30521112
 
 
 @login_management.route('/login/')
@@ -102,13 +112,14 @@ def gdisconnect():
         return json_mime_response('Current user not connected.', 401)
 
     # make a request to revoke token 
-    # url = f"https://accounts.google.com/o/oauth2/revoke?token={login_session['access_token']}"
-    # h = httplib2.Http()
-    # result = h.request(url, 'GET')[0]
-    r = requests.post('https://accounts.google.com/o/oauth2/revoke',
-        params={'token': login_session['access_token']},
-        headers = {'content-type': 'application/x-www-form-urlencoded'})
-    result = r.json()
+    url = f"https://accounts.google.com/o/oauth2/revoke?token={login_session['access_token']}"
+    h = httplib2.Http()
+    result = h.request(url, 'GET')[0]
+    # r = requests.post('https://accounts.google.com/o/oauth2/revoke',
+    #     params={'token': login_session.get('access_token')},
+    #     headers = {'content-type': 'application/x-www-form-urlencoded'})
+    # result = r.json()
+    # see https://stackoverflow.com/a/54260972
     print(login_session['access_token'])
     print(result)
     if result.get('status') == '200' or result.get('error') == 'invalid_token':
