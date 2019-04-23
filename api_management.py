@@ -19,7 +19,7 @@ api_management = Blueprint('api_management', __name__,
 
 @api_management.route('/api/')
 def api():
-    return render_template('api.html')
+    return render_template('api.html', is_logged_in=login_session.get('user_id'))
 
 
 @api_management.route('/api/restaurants/')

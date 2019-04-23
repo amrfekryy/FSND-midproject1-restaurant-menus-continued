@@ -62,5 +62,5 @@ def get_permissions(user_id, restaurant_or_item):
     returns two boolean values, the first indicates if user is logged in,
     the second indicates if he is the owner of restaurant_or_item object.
     """
-    is_app_user = True if user_id else False 
-    return is_app_user , user_id==restaurant_or_item.user_id
+    is_logged_in = True if user_id else False 
+    return is_logged_in , user_id==restaurant_or_item.user_id
