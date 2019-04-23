@@ -102,6 +102,8 @@ def delete_restaurant(restaurant_id):
 
         answer = request.form.get('answer')
         if answer == 'yes':
+            for item in restaurant.menu_items:
+                session.delete(item)
             session.delete(restaurant)
             session.commit()
             flash(f"Restaurant \"{restaurant_name}\" has been deleted")
