@@ -35,7 +35,8 @@ def remove_session(ex=None):
 def index():
 
     restaurants_list = session.query(Restaurant).all()
-    return render_template('index.html', restaurants_list=restaurants_list, is_logged_in=login_session.get('user_id'))
+    user = get_user(login_session.get('user_id')) 
+    return render_template('index.html', restaurants_list=restaurants_list, user=user)
 
 
 @app.route('/restaurants/add/', methods=['GET', 'POST'])
@@ -58,7 +59,8 @@ def add_restaurant():
             return "Name field is empty!"
     
     else:
-        return render_template('add_restaurant.html', is_logged_in=login_session.get('user_id'))
+        user = get_user(login_session.get('user_id'))
+        return render_template('add_restaurant.html', user=user)
 
 
 @app.route('/restaurants/<int:restaurant_id>/edit', methods=['GET', 'POST'])
@@ -85,7 +87,8 @@ def edit_restaurant(restaurant_id):
         if not is_owner:
             return "You Are not the owner of this restaurant"
         else:
-            return render_template('edit_restaurant.html', restaurant=restaurant, is_logged_in=is_logged_in)
+            user = get_user(login_session.get('user_id'))
+            return render_template('edit_restaurant.html', restaurant=restaurant, user=user)
 
 
 @app.route('/restaurants/<int:restaurant_id>/delete', methods=['GET', 'POST'])
@@ -110,7 +113,8 @@ def delete_restaurant(restaurant_id):
         if not is_owner:
             return "You Are not the owner of this restaurant"
         else:
-            return render_template('delete_restaurant.html', restaurant=restaurant, is_logged_in=is_logged_in)
+            user = get_user(login_session.get('user_id'))
+            return render_template('delete_restaurant.html', restaurant=restaurant, user=user)
 
 
 @app.route('/restaurants/<int:restaurant_id>/')
@@ -120,10 +124,11 @@ def restaurant_menu(restaurant_id):
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
 
     is_logged_in, is_owner = get_permissions(login_session.get('user_id'), restaurant)
-    
+    user = get_user(login_session.get('user_id'))
+
     return render_template('restaurant_menu.html', 
         restaurant=restaurant, menu_items=restaurant.menu_items, 
-        is_logged_in=is_logged_in, is_owner=is_owner)
+        user=user, is_owner=is_owner)
 
 
 @app.route('/restaurants/<int:restaurant_id>/menu/add', methods=['GET', 'POST'])
@@ -159,7 +164,8 @@ def add_menu_item(restaurant_id):
         if not is_owner:
             return "You Are not the owner of this restaurant"
         else:
-            return render_template('add_menu_item.html', restaurant_id=restaurant_id, is_logged_in=is_logged_in)
+            user = get_user(login_session.get('user_id'))
+            return render_template('add_menu_item.html', restaurant_id=restaurant_id, user=user)
 
 
 @app.route('/restaurants/<int:restaurant_id>/menu/<int:item_id>/edit', methods=['GET', 'POST'])
@@ -191,7 +197,8 @@ def edit_menu_item(restaurant_id, item_id):
         if not is_owner:
             return "You Are not the owner of this restaurant"
         else:
-            return render_template('edit_menu_item.html', restaurant=restaurant, menu_item=menu_item, is_logged_in=is_logged_in)
+            user = get_user(login_session.get('user_id'))
+            return render_template('edit_menu_item.html', restaurant=restaurant, menu_item=menu_item, user=user)
 
 
 @app.route('/restaurants/<int:restaurant_id>/menu/<int:item_id>/delete', methods=['GET', 'POST'])
@@ -217,8 +224,8 @@ def delete_menu_item(restaurant_id, item_id):
         if not is_owner:
             return "You Are not the owner of this restaurant"
         else:
-            return render_template('delete_menu_item.html', restaurant=restaurant, menu_item=menu_item, is_logged_in=is_logged_in)
-
+            user = get_user(login_session.get('user_id'))
+            return render_template('delete_menu_item.html', restaurant=restaurant, menu_item=menu_item, user=user)
 
 if __name__ == '__main__':
     app.secret_key = "super_secret_key"

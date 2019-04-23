@@ -5,7 +5,7 @@
   <div class="row mb-2">
     <div class="col-8 ml-2">
       <h3 style="display: inline-block;">Restaurants</h3>
-      {% if is_logged_in %}
+      {% if user %}
       (<a href="{{ url_for('add_restaurant') }}">Add</a>)
       {% endif %}
     </div>

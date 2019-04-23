@@ -57,6 +57,12 @@ def get_user_id(email):
         return None
 
 
+def get_user(user_id):
+    """takes user id and returns user object"""
+    if user_id: return session.query(User).filter_by(id=user_id).one()
+    return None
+
+
 def get_permissions(user_id, restaurant_or_item):
     """
     returns two boolean values, the first indicates if user is logged in,
@@ -64,3 +70,4 @@ def get_permissions(user_id, restaurant_or_item):
     """
     is_logged_in = True if user_id else False 
     return is_logged_in , user_id==restaurant_or_item.user_id
+

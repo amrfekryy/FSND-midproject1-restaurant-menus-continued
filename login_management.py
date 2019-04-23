@@ -100,7 +100,7 @@ def gconnect():
     # return successful response to client-side ajax request   
     return f"""
         <h1>Welcome, {login_session['username']}!</h1>
-        <img src="{login_session['picture']}" style = "width:300px; height:300px; border-radius:150px; -webkit-border-radius:150px; -moz-border-radius:150px;">
+        <img src="{login_session['picture']}" style = "width:60px; height:60px; border-radius:30px; -webkit-border-radius:30px; -moz-border-radius:30px;">
     """
 
 

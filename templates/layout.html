@@ -28,10 +28,15 @@
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
           <a class="nav-link" href="{{url_for('api_management.api')}}">API</a>
-        </li>
-        {% if is_logged_in %}
-        <li class="nav-item">
-          <a class="nav-link" href="{{url_for('login_management.gdisconnect')}}">Logout</a>
+        </li> 
+        {% if user %}
+        <li class="nav-item dropdown">
+          <div class="dropdown-toggle ml-3" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <img src="{{user.picture}}" width="40" height="40" style="background-color: blue; border-radius: 20px">
+          </div>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+            <a class="nav-link dropdown-item" href="{{url_for('login_management.gdisconnect')}}">Logout</a>
+          </div>
         </li>
         {% else %}
         <li class="nav-item">
