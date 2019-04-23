@@ -34,8 +34,7 @@ class User(Base):
             'id': self.id,
             'name': self.name,
             'email': self.email,
-            'picture': self.picture
-        }
+            'picture': self.picture }
 
 
 class Restaurant(Base):
@@ -54,8 +53,7 @@ class Restaurant(Base):
         return {
             'id': self.id,
             'name': self.name,
-            'user_id': self.user_id
-        }
+            'user_id': self.user_id }
 
 
 class MenuItem(Base):
@@ -82,9 +80,7 @@ class MenuItem(Base):
             'description': self.description,
             'price': self.price,
             'restaurant_id': self.restaurant_id,
-            'user_id': self.user_id
-        }
-
+            'user_id': self.user_id }
 
 
 # -------------------------------------------------
@@ -92,7 +88,7 @@ class MenuItem(Base):
 # CONFIGURATION-2:
 
 def main():
-    
+
     # [create and] bind DB to SQLAlchemy engine
     engine = create_engine('sqlite:///restaurantmenu.db')
     # create DB tables based on table classes (Base sub-classes) (declaratives)

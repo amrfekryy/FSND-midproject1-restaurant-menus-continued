@@ -6,7 +6,9 @@
     
     <div class="col-8 ml-2">
       <h3 style="display: inline-block;">Restaurants</h3>
+      {% if is_app_user %}
       (<a href="{{ url_for('add_restaurant') }}">Add</a>)
+      {% endif %}
     </div>
     
     <div class="col-2 mr-2">

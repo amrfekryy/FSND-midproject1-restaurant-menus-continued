@@ -7,7 +7,7 @@ from flask import (Blueprint, render_template, jsonify)
 # general
 from helpers import *
 # database
-from db_session import session, Restaurant, MenuItem
+from db_session import session, Restaurant, MenuItem, User
 
 
 # create blueprint

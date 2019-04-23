@@ -14,7 +14,7 @@ import json
 import requests
 from helpers import *
 # database
-from db_session import session, Restaurant, MenuItem
+from db_session import session, Restaurant, MenuItem, User
 
 
 # create blueprint
@@ -43,6 +43,10 @@ def gconnect():
     # Check state_token to protect against CSRF
     if request.args.get('state_token') != login_session['state_token']:
         return json_mime_response('Invalid state token parameter', 401)
+
+    # Check user is already logged in
+    if login_session.get('user_id'):
+        return json_mime_response('Current user is already connected.', 200)    
     
     # Collect one-time-auth-code from request
     auth_code = request.data
@@ -54,7 +58,6 @@ def gconnect():
             'client_secrets.json',
             ['https://www.googleapis.com/auth/drive.appdata', 'profile', 'email'],
             auth_code)
-        print(credentials_obj.access_token)
         # lesson method:
         # oauth_flow_obj = client.flow_from_clientsecrets('client_secrets.json', scope='')
         # oauth_flow_obj.redirect_uri = 'postmessage' # confirm it is one-time-auth-code
@@ -62,14 +65,14 @@ def gconnect():
     except client.FlowExchangeError:
         return json_mime_response('Failed to upgrade the authorization code', 401)
 
-    # Check access token is valid
+    # Access token tests:
+    # Verify access token is valid
     access_token = credentials_obj.access_token
     url = f'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={access_token}'
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
     if result.get('error'):
         return json_mime_response(result.get('error'), 500)
-
     # Verify access token is used for the intended user.
     user_id_from_credentials = credentials_obj.id_token['sub']
     if result['user_id'] != user_id_from_credentials:
@@ -77,17 +80,20 @@ def gconnect():
     # Verify access token is valid for this app.
     if result['issued_to'] != CLIENT_ID:
         return json_mime_response("Token's client ID does not match app's.", 401)
-    # Check user is already logged in
-    if login_session.get('access_token'):
-        return json_mime_response('Current user is already connected.', 200)
 
-    # After passing above verifications:
+
+    # Access token tests passed:
     # Store credentials in session for later use.
     login_session['access_token'] = credentials_obj.access_token
-    login_session['user_id'] = credentials_obj.id_token['sub']
     login_session['username'] = credentials_obj.id_token['name']
     login_session['picture'] = credentials_obj.id_token['picture']
     login_session['email'] = credentials_obj.id_token['email']
+    
+    # Create new user if not existant
+    user_id = get_user_id(login_session['email'])
+    if not user_id:
+        user_id = create_user(login_session)
+    login_session['user_id'] = user_id
 
     flash(f"you are now logged in as {login_session['username']}")
     
@@ -101,9 +107,8 @@ def gconnect():
 @login_management.route('/gdisconnect')
 def gdisconnect():
 
-    # Verify user is already logged in
-    access_token = login_session.get('access_token')
-    if access_token is None:
+    # Check user is already logged out
+    if not login_session.get('user_id'):
         return json_mime_response('Current user not connected.', 401)
 
     # make a request to revoke token 
@@ -115,8 +120,8 @@ def gdisconnect():
     #     headers = {'content-type': 'application/x-www-form-urlencoded'})
     # result = r.json()
     # see https://stackoverflow.com/a/54260972
-    print(login_session['access_token'])
-    print(result)
+
+    # revoke access token
     if result.get('status') == '200' or result.get('error') == 'invalid_token':
         login_session.clear() # https://stackoverflow.com/q/27747578
         return json_mime_response('Successfully disconnected.', 200)
