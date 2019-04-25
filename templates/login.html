@@ -2,19 +2,21 @@
 
 <!-- 
 Google Sign-In for server-side apps
+https://developers.google.com/identity/sign-in/web/server-side-flow
 
-https://developers.google.com/identity/sign-in/web/server-side-flow 
+Facebook Login for the Web with the JS SDK
+https://developers.facebook.com/docs/facebook-login/web
 -->
 
-<!-- Step 1: Create a client ID and client secret -->
 
 {% block head %}
 
-<!-- Step 2: Include the Google platform library -->
+<!-- GGL Step 1: Create a client ID and client secret -->
+<!-- GGL Step 2: Include the Google platform library -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
 
-<!-- Step 3: Initialize the GoogleAuth object -->
+<!-- GGL Step 3: Initialize the GoogleAuth object -->
 <script>
   function start() {
     gapi.load('auth2', function() {
@@ -32,18 +34,130 @@ https://developers.google.com/identity/sign-in/web/server-side-flow
 
 {% block body %}
 
-<!-- Step 4: Add the sign-in button to your page -->
+<!-- Facebook sign-in -->
+<!-- FB Step 1: Create app ID and app secret -->
+<script>
+  // FB Step: Check Login Status
+  // function statusChangeCallback(response) {
+  //   console.log('statusChangeCallback');
+  //   console.log(response);
+  //   if (response.status === 'connected') {
+  //     // Logged into app and Facebook.
+  //     testAPI();
+  //   } else {
+  //     // Not logged into app or unable to tell.
+  //     document.getElementById('status').innerHTML = 'Please log ' +
+  //       'into this app.';
+  //   }
+  // }
+
+  // This function is called when someone finishes with the Login
+  // Button.  See the onlogin handler attached to it in the sample
+  // code below.
+  // function checkLoginState() {
+  //   FB.getLoginStatus(function(response) {
+  //     statusChangeCallback(response);
+  //   });
+  // }
+
+  // FB Step 3: Initialize the FB Auth object
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '624700501334138',
+      cookie     : true,  // enable cookies to allow the server to access the session
+      xfbml      : true,  // parse social plugins on this page
+      version    : 'v3.2' // The Graph API version to use for the call
+    });
+    // FB Step: Check Login Status
+    // respone obj with status = connected/not_authorized/unknown
+    // FB.getLoginStatus(function(response) {
+    //   statusChangeCallback(response);
+    // });
+  };
+  // FB Step 2: Load the SDK asynchronously
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "https://connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+
+  // Here we run a very simple test of the Graph API after login is successful.  See statusChangeCallback() for when this call is made.
+  // function testAPI() {
+  //   console.log('Welcome!  Fetching your information.... ');
+  //   FB.api('/me', function(response) {
+  //     console.log('Successful login for: ' + response.name);
+  //     document.getElementById('status').innerHTML =
+  //       'Thanks for logging in, ' + response.name + '!';
+  //   });
+  // }
+
+
+  function sendTokenToServer() {
+    // get the short-lived access token
+    var access_token = FB.getAuthResponse()['accessToken'];
+    console.log(access_token)
+    console.log('Welcome!  Fetching your information.... ');
+    // call fb api and get usr data
+    FB.api('/me', function(response) {
+      console.log('Successful login for: ' + response.name);
+      $.ajax({
+        // Set method and route, passing the anti-forgery-state-token
+        type: 'POST',
+        url: '/fbconnect?state_token={{state_token}}',
+        // don't process reponse into a string
+        processData:false,
+        // data to send to server
+        data: access_token,
+        // octet-stream: arbitrary, binary stream of data
+        contentType: 'application/octet-stream; charset=utf-8',
+        // On 200 response from server
+        success: function(result) {
+          // Handle or verify the server response if necessary.
+          if (result) {
+            // Handle or verify server response.
+            $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
+            // Redirect user
+            setTimeout(function() {
+              window.location.href = "/";
+            }, 4000);
+          } else {
+              $('#result').html('Failed to make a server-side call. Check your configuration and console.');
+            }
+        }    
+      });
+    });
+  };
+</script>
+
+
+<!-- FB Step 4: Add the sign-in button to your page -->
+<!-- uses FB JS SDK to create button and trigger FB.login() onclick -->
+<div 
+class="fb-login-button" 
+data-size="medium"
+data-button-type="continue_with"
+data-auto-logout-link="false" 
+data-use-continue-as="false"
+scope="public_profile,email"
+onlogin="sendTokenToServer();">
+></div>
+<div id="status"></div>
+
+
+<!-- GGL Step 4: Add the sign-in button to your page -->
 <!-- Add where you want your sign-in button to render -->
 <!-- Use an image that follows the branding guidelines in a real app -->
 <button id="signinButton">Sign in with Google</button>
 
-<!-- Steps 5 & 6 -->
+<!-- GGL Steps 5 & 6 -->
 <div id="result"></div>
 <script>
 
   $('#signinButton').click(function() {
     
-    // Step 6: Send authorization code to the server
+    // GGL Step 6: Send authorization code to the server
     function signInCallback(authResult){
       // Check one-time-auth-code is present
       if (authResult['code']){
@@ -62,25 +176,27 @@ https://developers.google.com/identity/sign-in/web/server-side-flow
           contentType: 'application/octet-stream; charset=utf-8',
           // On 200 response from server
           success:function(result){
-            // Handle or verify server response.
-            $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
-                 // Redirect user
-                 setTimeout(function() {
-                  window.location.href = "/";
-                 }, 2000);
+            if (result) {
+              // Handle or verify server response.
+              $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
+              // Redirect user
+              setTimeout(function() {
+                window.location.href = "/";
+              }, 2000);
+            } else {
+                $('#result').html('Failed to make a server-side call. Check your configuration and console.');
+              }
           },
           // don't process reponse into a string
           processData:false,
           // data to send to server
           data:authResult['code']
         });
-      } else{ // authResult['error'] present
-        // Handle error
-        console.log('There was an error: ' + authResult['error']);
-        $('#result').html('Failed to make a server-side call. Check your configuration and console.');
-      }
+      } else { // authResult['error'] present
+          console.log('There was an error: ' + authResult['error']);
+        }
     }
-    // Step 5: Sign in the user
+    // GGL Step 5: Sign in the user
     // user grants access on google's sign-in click (client recieves access-token, one-time-auth-code)
     // call signInCallback({"code":"one-time-auth-code")
     auth2.grantOfflineAccess().then(signInCallback);
@@ -88,6 +204,6 @@ https://developers.google.com/identity/sign-in/web/server-side-flow
 
 </script>
 
-<!-- Step 7: Exchange the authorization code for an access token on server-side -->
+<!-- GGL Step 7: Exchange the authorization code for an access token on server-side -->
 
 {% endblock %}
