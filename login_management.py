@@ -11,7 +11,6 @@ from flask import (
 # general
 import random, string
 from oauth2client import client
-import httplib2
 import json
 import requests
 from helpers import *
@@ -26,8 +25,11 @@ login_management = Blueprint('login_management', __name__,
                      static_folder='static')
 
 
-# get client id client_secrets file that access token will be issued to
-CLIENT_ID = json.loads(open('client_secrets.json','r').read())['web']['client_id']
+# get client ids/secrets from external json files
+G_CLIENT_ID = json.loads(open('g_client_secrets.json','r').read())['web']['client_id']
+fb_app_credentials = json.loads(open('fb_client_secrets.json', 'r').read())['web']
+FB_APP_ID = fb_app_credentials['app_id']
+FB_APP_SECRET = fb_app_credentials['app_secret']
 
 
 @login_management.route('/login/')
@@ -55,32 +57,29 @@ def gconnect():
 
     # Exchange auth code for credentials obj containing access token, refresh token, and ID token
     try:
-        # new method
         credentials_obj = client.credentials_from_clientsecrets_and_code(
-            'client_secrets.json',
+            'g_client_secrets.json',
             ['https://www.googleapis.com/auth/drive.appdata', 'profile', 'email'],
             auth_code)
-        # lesson method:
-        # oauth_flow_obj = client.flow_from_clientsecrets('client_secrets.json', scope='')
-        # oauth_flow_obj.redirect_uri = 'postmessage' # confirm it is one-time-auth-code
-        # credentials_obj = oauth_flow_obj.step2_exchange(auth_code) # initiate exchange
+        print(f"ACCESS TOKEN = {credentials_obj.access_token}")
     except client.FlowExchangeError:
         return json_mime_response('Failed to upgrade the authorization code', 401)
 
-    # Access token tests:
+    # get token information from access token:
+    r = requests.get(
+        url="https://www.googleapis.com/oauth2/v1/tokeninfo",
+        params={'access_token': credentials_obj.access_token})
+    token_info = r.json()
+    # print(f"RESPONSE KEYS = {token_info.keys()}")
     # Verify access token is valid
-    access_token = credentials_obj.access_token
-    url = f'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={access_token}'
-    h = httplib2.Http()
-    result = json.loads(h.request(url, 'GET')[1])
-    if result.get('error'):
-        return json_mime_response(result.get('error'), 500)
+    if token_info.get('error'):
+        return json_mime_response(token_info.get('error'), 500)
     # Verify access token is used for the intended user.
     user_id_from_credentials = credentials_obj.id_token['sub']
-    if result['user_id'] != user_id_from_credentials:
+    if token_info.get('user_id') != user_id_from_credentials:
         return json_mime_response("Token's user ID doesn't match given user ID.", 401)
     # Verify access token is valid for this app.
-    if result['issued_to'] != CLIENT_ID:
+    if token_info.get('issued_to') != G_CLIENT_ID:
         return json_mime_response("Token's client ID does not match app's.", 401)
 
 
@@ -110,22 +109,18 @@ def gconnect():
 @login_management.route('/gdisconnect')
 def gdisconnect():
 
-    # Check user is already logged out
+    # Check user is not logged in
     if not login_session.get('user_id'):
         return json_mime_response('Current user not connected.', 401)
 
-    # make a request to revoke token 
-    url = f"https://accounts.google.com/o/oauth2/revoke?token={login_session['access_token']}"
-    h = httplib2.Http()
-    result = h.request(url, 'GET')[0]
-    # r = requests.post('https://accounts.google.com/o/oauth2/revoke',
-    #     params={'token': login_session.get('access_token')},
-    #     headers = {'content-type': 'application/x-www-form-urlencoded'})
-    # result = r.json()
-    # see https://stackoverflow.com/a/54260972
-
     # revoke access token
-    if result.get('status') == '200':
+    # see https://developers.google.com/identity/protocols/OAuth2WebServer
+    r = requests.post(
+        url='https://accounts.google.com/o/oauth2/revoke',
+        params={'token': login_session.get('access_token')},
+        headers = {'content-type': 'application/x-www-form-urlencoded'})    # 
+    # successful disconnect returns 200 OK status code
+    if r.status_code == 200:
         login_session.clear() # https://stackoverflow.com/q/27747578
         return json_mime_response('Successfully disconnected.', 200)
     else:
@@ -144,58 +139,42 @@ def fbconnect():
         return json_mime_response('Current user is already connected.', 200)
     
     # Collect short-lived access token from request
-    short_lived_token = request.data.decode("utf-8")
-    # converted from bytes obj to str to plug into next url
+    short_lived_token = request.data
 
     # Exchange short_lived_token with a long_lived_token
-    app_id_secret = json.loads(open('fb_client_secrets.json', 'r').read())['web']
-    app_id = app_id_secret['app_id']
-    app_secret = app_id_secret['app_secret']
+    r = requests.get(
+        url="https://graph.facebook.com/oauth/access_token",
+        params={
+        'client_id': FB_APP_ID,
+        'client_secret': FB_APP_SECRET,
+        'grant_type': 'fb_exchange_token',
+        'fb_exchange_token': short_lived_token})
+    long_lived_token = r.json().get('access_token')
 
-    print()
-    print(f"short_lived_token = {short_lived_token}")
-    print(f"app id = {app_id}")
-    print(f"app secret = {app_secret}")
-    print()
-
-    url = f"""https://graph.facebook.com/oauth/access_token?client_id={app_id}&client_secret={app_secret}&grant_type=fb_exchange_token&fb_exchange_token={short_lived_token}"""
-    h = httplib2.Http()
-    result = json.loads(h.request(url, 'GET')[1])
-    long_lived_token = result.get('access_token')
-    
-    print()
-    print(f"exchange result = {result}")
-    print(f"long_lived_token = {long_lived_token}")
-    print()
-
-    # get user's name,id,email from API
-    url = f"""https://graph.facebook.com/v3.2/me?access_token={long_lived_token}&fields=name,id,email"""
-    h = httplib2.Http()
-    result = h.request(url, 'GET')[1]
-    data = json.loads(result)
-    
-    print()
-    print(f"user info = {result}")
-    print()
-
-    # Store credentials in session for later use.
+    # Get user's name, id, email from API
+    r = requests.get(
+        url="https://graph.facebook.com/v3.2/me",
+        params={
+        'access_token': long_lived_token,
+        'fields': 'name,id,email'})
+    user_info = r.json()
+    # Store user info in session for later use.
     login_session['provider'] = 'facebook'
     login_session['access_token'] = long_lived_token
-    login_session['username'] = data['name']
-    login_session['email'] = data['email']
-    login_session['fb_id'] = data['id']
+    login_session['username'] = user_info.get('name')
+    login_session['email'] = user_info.get('email')
+    login_session['fb_id'] = user_info.get('id')
     
-    # get user's picture from API
-    url = f"""https://graph.facebook.com/v3.2/me/picture?access_token={long_lived_token}&redirect=0&height=200&width=200"""
-    h = httplib2.Http()
-    result = h.request(url, 'GET')[1]
-    data = json.loads(result)
-
-    print()
-    print(f"user picture = {result}")
-    print()
-
-    login_session['picture'] = data['data']['url']
+    # Get user's picture from API
+    r = requests.get(
+        url="https://graph.facebook.com/v3.2/me/picture",
+        params={
+        'access_token': long_lived_token,
+        'redirect': '0',
+        'height': '200',
+        'width': '200'})
+    # Store user picture in session for later use.
+    login_session['picture'] = r.json()['data']['url']
     
     # Create new user if not existant
     user_id = get_user_id(login_session['email'])
@@ -219,17 +198,13 @@ def fbdisconnect():
     if not login_session.get('user_id'):
         return json_mime_response('Current user not connected.', 401)
 
-    # make a request to revoke token 
-    url = f"https://graph.facebook.com/{login_session['fb_id']}/permissions?access_token={login_session['access_token']}"
-    h = httplib2.Http()
-    result = json.loads(h.request(url, 'DELETE')[1])
+    # revoke long lived token 
+    r = requests.delete(
+        url=f"https://graph.facebook.com/{login_session.get('fb_id')}/permissions",
+        params={'access_token': login_session.get('access_token')})
     
-    print()
-    print(f"disconnect result = {result}")
-    print()
-
-    # revoke access token
-    if result.get('success') == True:
+    # successful disconnect returns {"success":true}
+    if r.json().get('success') == True:
         login_session.clear() # https://stackoverflow.com/q/27747578
         return json_mime_response('Successfully disconnected.', 200)
     else:
