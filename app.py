@@ -5,12 +5,13 @@ sys.path.append("./database/")
 # flask
 from flask import ( 
     Flask, render_template, request, redirect, 
-    url_for, flash )
+    url_for, flash, jsonify )
 # blueprints
 from login_management import login_management
 from api_management import api_management
 # general
 from helpers import *
+from worldwide_mashup_helpers import *
 # database
 from db_session import session, Restaurant, MenuItem, User
 
@@ -232,7 +233,29 @@ def delete_menu_item(restaurant_id, item_id):
 
 @app.route('/worldwide/', methods=['GET', 'POST'])
 def worldwide_mashup():
-    return render_template('worldwide_mashup.html')
+    if request.method == 'POST':
+        # get and verify form inputs
+        address = request.form.get('address')
+        try: radius = int(request.form.get('radius'))
+        except: return "Range of search must be an integer"
+        meal = request.form.get('meal')
+
+        if not (address and radius and meal):
+            return "One or more search paramters is missing"
+        
+        # find restaurants via HERE, FOURSQUARE mashup
+        mashup_results = find_restaurant(address, radius, meal)
+        if not mashup_results:
+            return "No result was found"
+        if mashup_results == "API error":
+            return "Somethig went wrong, please try another address"            
+
+        # display results on page
+        # return jsonify(mashup_results)
+        return render_template('worldwide_mashup.html', mashup_results=mashup_results)
+
+    else:
+        return render_template('worldwide_mashup.html')
 
 
 if __name__ == '__main__':

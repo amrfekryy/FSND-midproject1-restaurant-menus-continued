@@ -6,70 +6,41 @@
     Search for restaurants worldwide 
   </h5>
 
-  <div class="input-group mb-3 mt-3">
-    <input type="text" class="form-control" 
+  <form class="input-group mb-3 mt-3" action="{{url_for('worldwide_mashup')}}" method="post">
+    <input name="address" type="text" class="form-control" 
       placeholder="Address to search around" 
       aria-label="Address to search around" 
       aria-describedby="search">
-    <input type="text" class="form-control" 
+    <input name="radius" type="text" class="form-control" 
       placeholder="Range of search (meters)" 
       aria-label="Range of search (meters)" 
       aria-describedby="search">
-    <input type="text" class="form-control" 
+    <input name="meal" type="text" class="form-control" 
       placeholder="Specific meal" 
       aria-label="Specific meal" 
       aria-describedby="search">
     <div class="input-group-append">
       <button class="btn btn-outline-secondary" 
-        type="button" id="search">Search</button>
+        type="submit" id="search">Search</button>
     </div>
-  </div>
-
+  </form>
+  
+  * Please consider that the search may take a while.
   <hr>
-
+  
+  {% if mashup_results %}
   <div class="row justify-content-center" id="worldwide-result">
-    <!-- {v% for item in menu_items %} -->
-<!--     <div class="card col-sm-10 col-md-5 col-lg-3 m-1">
-      <div class="card-body">
-        <h5 class="card-title">{v{ item.name }} | {v{ item.price }}</h5>
-        <h6 class="card-subtitle mb-2 text-muted">{v{ item.course }}</h6>
-        <p class="card-text">{v{ item.description }}</p>
-        {v% if is_owner %}
-        <a href="{v{ url_for('edit_menu_item', restaurant_id=restaurant.id, item_id=item.id) }}" class="card-link">Edit</a>
-        <a href="{v{ url_for('delete_menu_item', restaurant_id=restaurant.id, item_id=item.id) }}" class="card-link">Delete</a>
-        {v% endif %}
-      </div>
-    </div> -->
+    {% for result in mashup_results %}
     <div class="card mr-2 mb-2" style="width: 14rem;">
-      <img src="https://fastly.4sqi.net/img/general/300x300/160832860_3QwaYayinHKeutc_juhk8obUCYklVLUG7cfex2-5ZYk.jpg" class="card-img-top" alt="restaurant Photo">
+      <img src="{{ result.get('restaurant_photos')[0] }}" class="card-img-top" alt="Restaurant Photo">
       <div class="card-body">
-        <h5 class="card-title">Restaurant Name</h5>
-        <p class="card-text">Restaurant Address</p>
+        <h5 class="card-title">{{ result.get('restaurant_name') }}</h5>
+        <p class="card-text">{{ result.get('restaurant_address') }}</p>
       </div>
     </div>
-    <div class="card mr-2 mb-2" style="width: 14rem;">
-      <img src="https://fastly.4sqi.net/img/general/300x300/160832860_3QwaYayinHKeutc_juhk8obUCYklVLUG7cfex2-5ZYk.jpg" class="card-img-top" alt="restaurant Photo">
-      <div class="card-body">
-        <h5 class="card-title">Restaurant Name</h5>
-        <p class="card-text">Restaurant Address</p>
-      </div>
-    </div>
-    <div class="card mr-2 mb-2" style="width: 14rem;">
-      <img src="https://fastly.4sqi.net/img/general/300x300/160832860_3QwaYayinHKeutc_juhk8obUCYklVLUG7cfex2-5ZYk.jpg" class="card-img-top" alt="restaurant Photo">
-      <div class="card-body">
-        <h5 class="card-title">Restaurant Name</h5>
-        <p class="card-text">Restaurant Address</p>
-      </div>
-    </div>
-    <div class="card mr-2 mb-2" style="width: 14rem;">
-      <img src="https://fastly.4sqi.net/img/general/300x300/160832860_3QwaYayinHKeutc_juhk8obUCYklVLUG7cfex2-5ZYk.jpg" class="card-img-top" alt="restaurant Photo">
-      <div class="card-body">
-        <h5 class="card-title">Restaurant Name</h5>
-        <p class="card-text">Restaurant Address</p>
-      </div>
-    </div>
-    <!-- {v% endfor %} -->
+    {% endfor %}
   </div>
+  {% endif %}
 
 
 {% endblock %}

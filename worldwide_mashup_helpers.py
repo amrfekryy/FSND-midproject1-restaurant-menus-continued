@@ -29,9 +29,16 @@ def HERE_geocode(address):
 			'searchtext': address
 			})
 	# print(r.content) # explore response body
-	# parse response to get lat, lng dict
-	ll = r.json()['Response']['View'][0]['Result'][0]['Location']['DisplayPosition']
-	return str(ll['Latitude']), str(ll['Longitude'])
+	
+	# verify request was success
+	if r.status_code == 200:
+		# verify address returned a geocode
+		if r.json()['Response']['View']:
+			# parse response to get lat, lng dict
+			ll = r.json()['Response']['View'][0]['Result'][0]['Location']['DisplayPosition']
+			return str(ll['Latitude']), str(ll['Longitude'])
+		return None
+	return None
 
 
 def GOOGLE_geocode(address):
@@ -103,6 +110,8 @@ def find_restaurant(address, radius, meal):
 	"""
 	# geocode address
 	ll = HERE_geocode(address)
+	if not ll:
+		return "API error"
 	
 	# make request
 	r = requests.get(
@@ -128,21 +137,21 @@ def find_restaurant(address, radius, meal):
 		for venue in r.json().get('response').get('venues'):
 			
 			# RETAURANT NAME
-			restuarant_name = venue.get('name')
-			if not restuarant_name:
-				restuarant_name = "Couldn't get name for this restaurant"
+			restaurant_name = venue.get('name')
+			if not restaurant_name:
+				restaurant_name = "Couldn't get name for this restaurant"
 			
 			# RESTAURANT ADDRESS
-			restuarant_address = ''
+			restaurant_address = ''
 			venue_address = venue.get('location').get('address')
 			venue_cross_street = venue.get('location').get('crossStreet')
 			if venue_address:
 				if venue_cross_street:
-					restuarant_address = f"{venue_address}, {venue_cross_street}"
+					restaurant_address = f"{venue_address}, {venue_cross_street}"
 				else:
-					restuarant_address = venue_address	
+					restaurant_address = venue_address	
 			else:
-				restuarant_address = "Couldn't get address for this restaurant"
+				restaurant_address = "Couldn't get address for this restaurant"
 			
 			# RESTAURANT PHOTOS
 			restaurant_photos = ''
@@ -151,35 +160,35 @@ def find_restaurant(address, radius, meal):
 				if photos:
 					restaurant_photos = photos
 				else:
-					restaurant_photos = ["There are no photos for this restaurant"]
+					restaurant_photos = ["https://upload.wikimedia.org/wikipedia/en/d/d3/No-picture.jpg"]
 			else:
-				restaurant_photos = ["Couldn't get photos for this restaurant"]
+				restaurant_photos = ["https://upload.wikimedia.org/wikipedia/en/d/d3/No-picture.jpg"]
 
 			# wrap up results
 			results.append({
-				'restuarant_name': restuarant_name,
-				'restuarant_address': restuarant_address,
+				'restaurant_name': restaurant_name,
+				'restaurant_address': restaurant_address,
 				'restaurant_photos': restaurant_photos
 				})
 
 		# print and return results
-		print_restaurants_info(results)
+		# print_restaurants_info(results)
 		return results
 
 	else:
 		# print and return error message
-		print("Restaurant search request was unsuccessful!")
-		return "Restaurant search request was unsuccessful!"
+		# print("Restaurant search request was unsuccessful!")
+		return "API error"
 
 
 def print_restaurants_info(results):
 	"""Prints information inside results to Terminal in a readable way for testing"""
 	print('Results: \n')
-	for restarant in results:
-		print(f"Retaurant Name: {restarant['restuarant_name']}")
-		print(f"Retaurant Address: {restarant['restuarant_address']}")
+	for restaurant in results:
+		print(f"Retaurant Name: {restaurant['restaurant_name']}")
+		print(f"Retaurant Address: {restaurant['restaurant_address']}")
 		print("Retaurant Photos:")
-		for photo in restarant['restaurant_photos']:
+		for photo in restaurant['restaurant_photos']:
 			print(f"  - {photo}")
 		print('____________________')
 
