@@ -231,8 +231,8 @@ def delete_menu_item(restaurant_id, item_id):
 
 
 @app.route('/worldwide/', methods=['GET', 'POST'])
-def api_mashup():
-    return render_template('api_mashup.html')
+def worldwide_mashup():
+    return render_template('worldwide_mashup.html')
 
 
 if __name__ == '__main__':
