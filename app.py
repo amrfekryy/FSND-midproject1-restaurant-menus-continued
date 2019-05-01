@@ -229,6 +229,12 @@ def delete_menu_item(restaurant_id, item_id):
             user = get_user(login_session.get('user_id'))
             return render_template('delete_menu_item.html', restaurant=restaurant, menu_item=menu_item, user=user)
 
+
+@app.route('/worldwide/', methods=['GET', 'POST'])
+def api_mashup():
+    return render_template('api_mashup.html')
+
+
 if __name__ == '__main__':
     app.secret_key = "super_secret_key"
     app.debug = True
