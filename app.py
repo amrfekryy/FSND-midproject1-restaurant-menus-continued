@@ -234,6 +234,9 @@ def delete_menu_item(restaurant_id, item_id):
 @app.route('/worldwide/', methods=['GET', 'POST'])
 @login_required
 def worldwide_mashup():
+    
+    user = get_user(login_session.get('user_id'))
+    
     if request.method == 'POST':
         # get and verify form inputs
         address = request.form.get('address')
@@ -253,10 +256,9 @@ def worldwide_mashup():
 
         # display results on page
         # return jsonify(mashup_results)
-        return render_template('worldwide_mashup.html', mashup_results=mashup_results)
+        return render_template('worldwide_mashup.html', mashup_results=mashup_results, user=user)
 
     else:
-        user = get_user(login_session.get('user_id'))
         return render_template('worldwide_mashup.html', user=user)
 
 
