@@ -17,7 +17,7 @@ function start() {
 } // should be triggered first to define auth2 object
 
 // GGL Steps 5 & 6
-$('#signinButton').click(function() {
+$('.loginBtn--google').click(function() {
   // GGL Step 6: Send authorization code to the server
   function signInCallback(authResult){
     // Check one-time-auth-code is present

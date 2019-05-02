@@ -106,5 +106,10 @@ function sendTokenToServer() {
     }
 };
 
+$('.loginBtn--facebook').click(function() {
+    FB.login(sendTokenToServer, {scope: 'email,public_profile', return_scopes: true})
+  }
+);
+
 // FB Step 6: Exchange the authorization code for an access token on server-side
 

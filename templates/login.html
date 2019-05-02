@@ -2,15 +2,21 @@
 
 
 {% block head %}
-<!-- get state_token flask variable to use in JS -->
-<script>
-  var state_token = '{{ state_token }}';
-</script>
+  <!-- get state_token flask variable to use in JS -->
+  <script>
+    var state_token = '{{ state_token }}';
+  </script>
 
-<!-- Include the Google platform library -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-<script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+  <!-- Include the Google platform library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+{% endblock %}
 
+
+{% block style %}
+<!-- buttons style -->
+<!-- https://codepen.io/davidelrizzo/pen/vEYvyv -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='buttons.css') }}">
 {% endblock %}
 
 
@@ -27,25 +33,20 @@
     {% endif %}
   {% endwith %}
 
+  
+  <!-- Facebook and Google login buttons -->
   <div id="buttons">
-    <!-- Facebook login button -->
-    <div 
-    class="fb-login-button" 
-    data-size="medium"
-    data-button-type="continue_with"
-    data-auto-logout-link="false" 
-    data-use-continue-as="false"
-    scope="public_profile,email"
-    onlogin="sendTokenToServer();">
-    ></div>
-    <!-- <div id="status"></div> -->
-    <br>
-    <!--Google login button -->
-    <button id="signinButton">Sign in with Google</button>
+    <button class="loginBtn loginBtn--facebook">
+      Continue with Facebook
+    </button>
+    <button class="loginBtn loginBtn--google">
+      Continue with Google
+    </button>
   </div>
   <!-- 
   #buttons div will be hidden upon recieving one-time-code/short-lived-token on client-side which will be sent to server-side via ajax for testing and server feedback will be displayed instead.
   -->
+
 
   <!-- div to display server feedback -->
   <div id="result"></div>  
@@ -54,5 +55,4 @@
   <script src="{{ url_for('static', filename='fb_login.js') }}"></script>
   <!-- Google Login JS file -->
   <script src="{{ url_for('static', filename='g_login.js') }}"></script>
-
 {% endblock %}
