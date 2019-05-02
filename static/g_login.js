@@ -3,7 +3,7 @@
 
 // GGL Step 1: Create a client ID and client secret
 // GGL Step 2: Add a button to the login page
-// GGL Step 3: Include the Google platform library in html
+// GGL Step 3: Include jQuery and Google platform library
 
 // GGL Step 4: Initialize the GoogleAuth object
 function start() {

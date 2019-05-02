@@ -122,6 +122,7 @@ def gdisconnect():
     # successful disconnect returns 200 OK status code
     if r.status_code == 200:
         login_session.clear() # https://stackoverflow.com/q/27747578
+        flash("You have logged out successfully")
         return json_mime_response('Successfully disconnected.', 200)
     else:
         return json_mime_response('Failed to revoke token for given user.', 400)
@@ -206,6 +207,7 @@ def fbdisconnect():
     # successful disconnect returns {"success":true}
     if r.json().get('success') == True:
         login_session.clear() # https://stackoverflow.com/q/27747578
+        flash("You have logged out successfully")
         return json_mime_response('Successfully disconnected.', 200)
     else:
         return json_mime_response('Failed to revoke token for given user.', 400)

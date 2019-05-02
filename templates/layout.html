@@ -9,6 +9,36 @@
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <!-- Google JQuery CDN -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+  <!-- logout button JS -->
+  <script>
+    function logout() {
+      $.ajax({
+        // Set method and route
+        type: 'GET',
+        url: '/disconnect',
+        // Protect against CSRF attacks.
+        headers: {'X-Requested-With': 'XMLHttpRequest'},
+        // octet-stream: arbitrary, binary stream of data
+        contentType: 'application/octet-stream; charset=utf-8',
+        // On 200 response from server
+        success:function(result){
+          if (result) {
+            // show result in console and body
+            console.log(result)
+            // Redirect user
+            window.location.href = "/";
+          } else {
+              // show result in console and body
+              console.log(result)
+            }
+        },
+        // don't process reponse into a string
+        processData:false,
+      });
+    }
+  </script>
   <!-- extra headers block -->
   {% block head %}
   {% endblock %}
@@ -41,7 +71,7 @@
             <img src="{{user.picture}}" width="40" height="40" style="background-color: blue; border-radius: 20px">
           </div>
           <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-            <a class="nav-link dropdown-item" href="{{url_for('login_management.disconnect')}}">Logout</a>
+            <a class="nav-link dropdown-item" href="#" onclick="logout();">Logout</a>
           </div>
         </li>
         {% else %}
@@ -55,7 +85,7 @@
   </nav>
   
   <!-- body block -->
-  <div class="container-fluid p-5">
+  <div id="body-content" class="container-fluid p-5">
     {% block body %}
     {% endblock %}
   </div>
