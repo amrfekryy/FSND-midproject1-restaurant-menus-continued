@@ -4,17 +4,8 @@
 // GGL Step 1: Create a client ID and client secret
 // GGL Step 2: Add a button to the login page
 // GGL Step 3: Include jQuery and Google platform library
-
 // GGL Step 4: Initialize the GoogleAuth object
-function start() {
-  gapi.load('auth2', function() {
-    auth2 = gapi.auth2.init({
-      client_id: '833987237822-k85d1lfv9a2b4ah7p1ss6sfm5aqk96k6.apps.googleusercontent.com'
-      // Add more scopes to request in addition to 'profile' and 'email'
-      //scope: 'additional_scope'
-    });
-  });
-} // should be triggered first to define auth2 object
+
 
 // GGL Steps 5 & 6
 $('.loginBtn--google').click(function() {

@@ -9,6 +9,18 @@
 
   <!-- Include the Google platform library (needs jQuery)-->
   <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+  <!-- Initialize the GoogleAuth object -->
+  <script>
+    function start() {
+      gapi.load('auth2', function() {
+        auth2 = gapi.auth2.init({
+          client_id: '833987237822-k85d1lfv9a2b4ah7p1ss6sfm5aqk96k6.apps.googleusercontent.com'
+          // Add more scopes to request in addition to 'profile' and 'email'
+          //scope: 'additional_scope'
+        });
+      });
+    }
+  </script>
 {% endblock %}
 
 
