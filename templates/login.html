@@ -16,31 +16,43 @@
 
 {% block body %}
 
-<div id="buttons">
-  <!-- Facebook login button -->
-  <div 
-  class="fb-login-button" 
-  data-size="medium"
-  data-button-type="continue_with"
-  data-auto-logout-link="false" 
-  data-use-continue-as="false"
-  scope="public_profile,email"
-  onlogin="sendTokenToServer();">
-  ></div>
-  <!-- <div id="status"></div> -->
-  <br>
-  <!--Google login button -->
-  <button id="signinButton">Sign in with Google</button>
-</div>
-<!-- 
-#buttons div will be hidden upon recieving one-time-code/short-lived-token on client-side which will be sent to server-side via ajax for testing and server feedback will be displayed instead.
--->
+  <!-- flash messages if any -->
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-success" role="alert">
+        {{ message }}
+      </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
 
-<!-- div to display server feedback -->
-<div id="result"></div>  
+  <div id="buttons">
+    <!-- Facebook login button -->
+    <div 
+    class="fb-login-button" 
+    data-size="medium"
+    data-button-type="continue_with"
+    data-auto-logout-link="false" 
+    data-use-continue-as="false"
+    scope="public_profile,email"
+    onlogin="sendTokenToServer();">
+    ></div>
+    <!-- <div id="status"></div> -->
+    <br>
+    <!--Google login button -->
+    <button id="signinButton">Sign in with Google</button>
+  </div>
+  <!-- 
+  #buttons div will be hidden upon recieving one-time-code/short-lived-token on client-side which will be sent to server-side via ajax for testing and server feedback will be displayed instead.
+  -->
 
-<!-- Facebook Login JS file -->
-<script src="{{ url_for('static', filename='fb_login.js') }}"></script>
-<!-- Google Login JS file -->
-<script src="{{ url_for('static', filename='g_login.js') }}"></script>
+  <!-- div to display server feedback -->
+  <div id="result"></div>  
+
+  <!-- Facebook Login JS file -->
+  <script src="{{ url_for('static', filename='fb_login.js') }}"></script>
+  <!-- Google Login JS file -->
+  <script src="{{ url_for('static', filename='g_login.js') }}"></script>
+
 {% endblock %}

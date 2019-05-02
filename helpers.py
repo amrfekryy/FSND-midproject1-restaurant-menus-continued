@@ -4,7 +4,8 @@ sys.path.append("./database/")
 
 # flask
 from flask import (
-    redirect, url_for, session as login_session, make_response )
+    redirect, url_for, flash, 
+    session as login_session, make_response )
 # general
 from functools import wraps
 import json
@@ -20,6 +21,7 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not login_session.get('user_id'):
+            flash("The requested URL requires login")
             return redirect(url_for('login_management.login'))
         return f(*args, **kwargs)
     return decorated_function
