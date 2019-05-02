@@ -33,15 +33,18 @@
     {% endif %}
   {% endwith %}
 
-  
+
   <!-- Facebook and Google login buttons -->
-  <div id="buttons">
-    <button class="loginBtn loginBtn--facebook">
-      Continue with Facebook
-    </button>
-    <button class="loginBtn loginBtn--google">
-      Continue with Google
-    </button>
+  <div id="buttons" class="card m-auto" style="width: 20rem;">
+    <div class="card-body" style="text-align: center">
+      <h5 class="card-title">Sign up or Login</h5>
+      <button class="loginBtn loginBtn--facebook">
+        Continue with Facebook
+      </button>
+      <button class="loginBtn loginBtn--google">
+        Continue with Google
+      </button>
+    </div>
   </div>
   <!-- 
   #buttons div will be hidden upon recieving one-time-code/short-lived-token on client-side which will be sent to server-side via ajax for testing and server feedback will be displayed instead.
