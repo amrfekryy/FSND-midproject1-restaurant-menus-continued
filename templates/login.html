@@ -9,8 +9,9 @@
 
   <!-- Include the Google platform library (needs jQuery)-->
   <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
-  <!-- Initialize the GoogleAuth object -->
+
   <script>
+    // Initialize the GoogleAuth object
     function start() {
       gapi.load('auth2', function() {
         auth2 = gapi.auth2.init({
@@ -25,9 +26,10 @@
 
 
 {% block style %}
-<!-- buttons style -->
-<!-- https://codepen.io/davidelrizzo/pen/vEYvyv -->
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='buttons.css') }}">
+  <!-- buttons style -->
+  <!-- https://codepen.io/davidelrizzo/pen/vEYvyv -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='buttons.css') }}">
+
 {% endblock %}
 
 
@@ -37,13 +39,16 @@
   {% with messages = get_flashed_messages() %}
     {% if messages %}
       {% for message in messages %}
-      <div class="alert alert-success" role="alert">
-        {{ message }}
-      </div>
+        <div id="flash" class="alert alert-success" role="alert" style="position: relative">
+          {{ message }}
+          <span id="flash-close" style="position: absolute; right: 20px;"> 
+            <i class="fas fa-times"></i>
+          </span>
+        </div>
       {% endfor %}
     {% endif %}
   {% endwith %}
-
+  
 
   <!-- Facebook and Google login buttons -->
   <div id="buttons" class="card m-auto" style="width: 20rem;">

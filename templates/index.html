@@ -2,6 +2,19 @@
 
 {% block body %}
 
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+        <div id="flash" class="alert alert-success" role="alert" style="position: relative">
+          {{ message }}
+          <span id="flash-close" style="position: absolute; right: 20px;"> 
+            <i class="fas fa-times"></i>
+          </span>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
   <div class="row mb-2">
     <div class="col-8 ml-2">
       <h3 style="display: inline-block;">Restaurants</h3>
@@ -10,16 +23,6 @@
       {% endif %}
     </div>
   </div>
-
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      {% for message in messages %}
-      <div class="alert alert-success" role="alert">
-        {{ message }}
-      </div>
-      {% endfor %}
-    {% endif %}
-  {% endwith %}
   
   <div class="list-group">
     {% for restaurant in restaurants_list %}
