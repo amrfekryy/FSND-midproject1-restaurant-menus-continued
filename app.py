@@ -6,6 +6,7 @@ sys.path.append("./database/")
 from flask import ( 
     Flask, render_template, request, redirect, 
     url_for, flash, jsonify )
+from flask_session import Session
 # blueprints
 from login_management import login_management
 from api_management import api_management
@@ -18,6 +19,13 @@ from db_session import session, Restaurant, MenuItem, User
 
 # initialize flask app
 app = Flask(__name__)
+
+# configure session
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = 'filesystem'
+app.config["SECRET_KEY"] = 'super_secret_key'
+Session(app)
+
 # register blueprints
 app.register_blueprint(login_management)
 app.register_blueprint(api_management)
@@ -263,6 +271,7 @@ def worldwide_mashup():
 
 
 if __name__ == '__main__':
-    app.secret_key = "super_secret_key"
-    app.debug = True
-    app.run(host='0.0.0.0', port=5000)
+    # app.secret_key = "super_secret_key"
+    # app.debug = True
+    # app.run(host='0.0.0.0', port=5000)
+    app.run()
