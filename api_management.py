@@ -25,10 +25,45 @@ def api():
 
 
 # GET all restaurants
-@api_management.route('/api/restaurants/')
+@api_management.route('/api/restaurants/', methods=['GET', 'POST'])
 def api_restaurants():
-    restaurants_list = session.query(Restaurant).all()    
-    return jsonify({'restaurants':[restaurant.serialize for restaurant in restaurants_list]})
+    if request.method == 'GET':
+        restaurants_list = session.query(Restaurant).all()    
+        return jsonify({'restaurants':[restaurant.serialize for restaurant in restaurants_list]})
+
+    elif request.method == 'POST':
+
+        restaurant_name = request.args.get('name')
+        user_id = request.args.get('user_id')
+
+        # check all parameters were provided
+        if restaurant_name and user_id:
+            # verify user id
+            try:
+                session.query(User).filter_by(id=user_id).one()
+            except:
+                return jsonify({
+                    'success':False,
+                    'description': f'There is no user with id:{user_id}' 
+                    }), 400
+
+            # add restaurant
+            new_restaurant = Restaurant(
+                name=restaurant_name,
+                user_id=user_id)
+            session.add(new_restaurant)
+            session.commit()
+            return jsonify({
+                    'success':True,
+                    'description': f'A new restaurant has been added by user with id:{user_id}' 
+                    }), 200
+
+        else:
+            return jsonify({
+                'success':False, 
+                'description': "One or more parameters is missing"
+                }), 400
+
 
 
 # GET/ PUT/DELETE an existing restaurant, POST a new menu_item
@@ -62,7 +97,7 @@ def api_restaurant(restaurant_id):
         else:
             return jsonify({
                 'success':False, 
-                'description': "couldn't collect 'name' parameter"
+                'description': "'name' parameter was not provided"
                 }), 400
 
     elif request.method == 'DELETE':
