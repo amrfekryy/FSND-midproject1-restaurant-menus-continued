@@ -31,8 +31,8 @@ def api_restaurants():
     return jsonify({'restaurants':[restaurant.serialize for restaurant in restaurants_list]})
 
 
-# GET/ PUT/DELETE an existing restaurant
-@api_management.route('/api/restaurant/<int:restaurant_id>/', methods=['GET', 'PUT', 'DELETE'])
+# GET/ PUT/DELETE an existing restaurant, POST a new menu_item
+@api_management.route('/api/restaurant/<int:restaurant_id>/', methods=['GET', 'PUT', 'DELETE', 'POST'])
 def api_restaurant(restaurant_id):
     # verify id exists in database
     try:
@@ -74,6 +74,44 @@ def api_restaurant(restaurant_id):
             'success':True, 
             'description': f'Restaurant with id:{restaurant_id} has been deleted'
             }), 200
+
+    elif request.method == 'POST':
+        item_name = request.args.get('name')
+        item_price = request.args.get('price')
+        item_description = request.args.get('description')
+        item_course = request.args.get('course')        
+        user_id = request.args.get('user_id')
+
+        # check all parameters were provided
+        if item_name and item_price and item_description and item_course and user_id:
+            # verify user id
+            try:
+                session.query(User).filter_by(id=user_id).one()
+            except:
+                return jsonify({
+                    'success':False,
+                    'description': f'There is no user with id:{user_id}' 
+                    }), 400
+            # add the item
+            new_item = MenuItem(
+                name=item_name, 
+                price=item_price, 
+                description=item_description, 
+                course=item_course, 
+                restaurant_id=restaurant_id,
+                user_id=user_id)
+            session.add(new_item)
+            session.commit()
+            return jsonify({
+                'success':True, 
+                'description': f'A new item has been added to restaurant with id:{restaurant_id}'
+                }), 200
+        else:
+            return jsonify({
+                'success':False,
+                'description': 'One or more parameters is missing' 
+                }), 400
+
 
 
 # GET/ PUT/DELETE an existing menu item
