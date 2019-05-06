@@ -77,21 +77,58 @@ def api_restaurant(restaurant_id):
 
 
 # GET/ PUT/DELETE an existing menu item
-@api_management.route('/api/menu_item/<int:item_id>/')
+@api_management.route('/api/menu_item/<int:item_id>/', methods=['GET', 'PUT', 'DELETE'])
 def api_menu_item(item_id):
+    # verify id exists in database
     try:
         menu_item = session.query(MenuItem).filter_by(id=item_id).one()
     except:
-        return f"There is no item with id = {item_id}"
+        return jsonify({
+            'success':False, 
+            'description': f'There is no menu item with id:{item_id}'
+            }), 400
+    
+    if request.method == 'GET':
+        restaurant = menu_item.restaurant
+        item_dict = {
+            'restaurant_id':restaurant.id,
+            'restaurant_name':restaurant.name,
+            'menu_item':menu_item.serialize
+        }
+        return jsonify(item_dict)
 
-    restaurant = session.query(Restaurant).filter_by(id=menu_item.restaurant_id).one()
+    elif request.method == 'PUT':
 
-    item_dict = {
-        'restaurant_id':restaurant.id,
-        'restaurant_name':restaurant.name,
-        'menu_item':menu_item.serialize
-    }
-    return jsonify(item_dict)
+        item_new_name = request.args.get('name')
+        item_new_price = request.args.get('price')
+        item_new_description = request.args.get('description')
+        item_new_course = request.args.get('course')
+
+        if not (item_new_name or item_new_price or item_new_description or item_new_course):
+            return jsonify({
+                'success':False, 
+                'description': "No parameters were provided"
+                }), 400
+        
+        if item_new_name: menu_item.name = item_new_name
+        if item_new_price: menu_item.price = item_new_price
+        if item_new_description: menu_item.description = item_new_description
+        if item_new_course: menu_item.course = item_new_course
+        
+        session.add(menu_item)
+        session.commit()
+        return jsonify({
+            'success':True, 
+            'description': f'Item with id:{item_id} has been updated'
+            }), 200
+
+    elif request.method == 'DELETE':
+        session.delete(menu_item)
+        session.commit()
+        return jsonify({
+            'success':True, 
+            'description': f'Item with id:{item_id} has been deleted'
+            }), 200
 
 
 # GET all data
