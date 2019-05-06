@@ -6,9 +6,9 @@ sys.path.append("./database/")
 from flask import (Blueprint, render_template, request, jsonify)
 # general
 from helpers import *
+from worldwide_mashup_helpers import *
 # database
 from db_session import session, Restaurant, MenuItem, User
-
 
 # create blueprint
 # http://flask.pocoo.org/docs/1.0/blueprints/
@@ -215,3 +215,52 @@ def api_all():
         all_data.append(restaurant_dict)
 
     return jsonify({'restaurant_menus':all_data})
+
+
+# Use worldwide search
+@api_management.route('/api/worldwide', methods=['POST'])
+def api_worldwide():
+    if request.method == 'POST':
+        address = request.args.get('address')
+        radius = request.args.get('radius')
+        meal = request.args.get('meal')
+
+        # check all parameters were provided
+        if not (address and radius and meal):
+            return jsonify({
+                'success':False, 
+                'description': "One or more parameters is missing"
+                }), 400
+
+        # verify radius is integer
+        try: 
+            radius = int(radius)
+        except: 
+            return jsonify({
+                'success':False, 
+                'description': "'radius' parameter must be an integer"
+                }), 400
+        
+        # find restaurants via HERE, FOURSQUARE mashup
+        mashup_results = find_restaurant(address, radius, meal)
+        
+        # case no results
+        if not mashup_results:
+            return jsonify({
+                'success':True, 
+                'description': "No results were found. Try different values"
+                }), 200
+        
+        # case address is not recognized
+        if mashup_results == "API error":
+            return jsonify({
+                'success':False, 
+                'description': "Somethig went wrong, please try another address"
+                }), 500
+
+        return jsonify({
+            'success':True,
+            'description': "Request was successful and yielded results",
+            'results': mashup_results
+            }), 200
+
