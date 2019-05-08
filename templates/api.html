@@ -3,36 +3,723 @@
 {% block head %}
   <style>
     pre {color:teal;}
+    .container-fluid {background-color: #FFF}
+    .response {
+      background-color: #eee;
+      color: darkorange;
+      border: 1px solid grey;
+      border-radius: 5px;
+      max-width: 700px
+    }
   </style>
 {% endblock %}
 
 {% block body %}
 
-  <h3>API Usage:</h3><br>
+  <h4>API Documentation</h4>
+  <br>
+  <p>
+    Welcome to our API!
+    <br> 
+    Below you can find the documentation of the different operations that you can perform through our API. Operations are divided into three categories. Under each category is one or more actions that can be performed. For each action, there is a detailed description about how to make the API call, and what are the expected responses.
+  </p>
+  <br><br>
 
-  <ul>
-    <li>
-      For a list of all restaurants names and IDs
-      <pre>/api/restaurants/</pre>
-    </li>
-    <hr>
-    <li>
-      For a specific restaurant data
-      <pre>/api/restaurant/&#60;restaurant_id&#62;/</pre>
-      replace <code>&#60;restaurant_id&#62;</code> with the equivalent id from <code>/api/restaurants/</code>
-    </li>
-    <hr>
-    <li>
-      For a specific menu item data
-      <pre>/api/menu_item/&#60;item_id&#62;/</pre>
-      replace <code>&#60;item_id&#62;</code> with the equivalent id from <code>/api/restaurant/&#60;restaurant_id&#62;/</code>
-    </li>
-    <hr>
-    <li>
-      For a list of all restaurants and their menus
-      <pre>/api/all/</pre>
-    </li>
-    <hr>
-  </ul>
+<!-- Tabs -->
+<nav>
+  <div class="nav nav-tabs" id="nav-tab" role="tablist">
+    <a class="nav-item nav-link active" id="nav-restaurants-tab" data-toggle="tab" href="#nav-restaurants" role="tab" aria-controls="nav-restaurants" aria-selected="true">Restaurants</a>
+    <a class="nav-item nav-link" id="nav-items-tab" data-toggle="tab" href="#nav-items" role="tab" aria-controls="nav-items" aria-selected="false">Menu Items</a>
+    <a class="nav-item nav-link" id="nav-search-tab" data-toggle="tab" href="#nav-search" role="tab" aria-controls="nav-search" aria-selected="false">Worldwide Search</a>
+  </div>
+</nav>
+
+<!-- Contents -->
+<div class="tab-content" id="nav-tabContent">
+  
+  <!-- Restaurants API CRUD Documentations-->
+  <div class="tab-pane fade show active" id="nav-restaurants" role="tabpanel" aria-labelledby="nav-restaurants-tab">
+
+    <br>
+    <div class="row">
+      <div class="col-2">
+        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+          <a class="nav-link active" id="v-pills-1A-tab" data-toggle="pill" href="#v-pills-1A" role="tab" aria-controls="v-pills-1A" aria-selected="true">Restaurants Basic Data</a>
+          <a class="nav-link" id="v-pills-1B-tab" data-toggle="pill" href="#v-pills-1B" role="tab" aria-controls="v-pills-1B" aria-selected="false">Restaurant Data and Menu</a>
+          <a class="nav-link" id="v-pills-1C-tab" data-toggle="pill" href="#v-pills-1C" role="tab" aria-controls="v-pills-1C" aria-selected="false">Add Restaurant</a>
+          <a class="nav-link" id="v-pills-1D-tab" data-toggle="pill" href="#v-pills-1D" role="tab" aria-controls="v-pills-1D" aria-selected="false">Rename Restaurant</a>
+          <a class="nav-link" id="v-pills-1E-tab" data-toggle="pill" href="#v-pills-1E" role="tab" aria-controls="v-pills-1E" aria-selected="false">Delete Restaurant</a>
+        </div>
+      </div>
+      <div class="col-1"></div>
+      <div class="col-9">
+        <div class="tab-content" id="v-pills-tabContent">
+          <!-- Restaurants Basic Data -->
+          <div class="tab-pane fade show active" id="v-pills-1A" role="tabpanel" aria-labelledby="v-pills-1A-tab">
+            <h5>Usage</h5>
+            <p>
+              For all restaurants in our database, obtain restaurant name and id, and user id (the creator of the restaurant).
+            </p>
+            <br>
+
+            <h5>Making a Request</h5>
+            <table class="table table-bordered">
+              <tbody>
+                <tr>
+                  <th scope="row" style="width: 120px">Method</th>
+                  <td>GET</td>
+                </tr>
+                <tr>
+                  <th scope="row">Base URL Path</th>
+                  <td><pre>/api/restaurants/</pre></td>
+                </tr>
+                <tr>
+                  <th scope="row">Parameters</th>
+                  <td>None</td>
+                </tr>
+              </tbody>
+            </table>
+            <br>
+
+            <h5>Responses</h5>
+            <p><li>Upon a successful request:</li></p>
+            <pre class="response"><code>
+  {
+    "restaurants": [
+      {
+        "id": &#60;restaurant id&#62;,
+        "name": &#60;restaurant name&#62;,
+        "user_id": &#60;user id&#62;
+      },
+      .
+      .
+    ]
+  } 
+            </code></pre>
+          </div>
+          <!-- Restaurant Data and Menu -->
+          <div class="tab-pane fade" id="v-pills-1B" role="tabpanel" aria-labelledby="v-pills-1B-tab">
+            <h5>Usage</h5>
+            <p>
+              For a specific restaurant, obtain restaurant name and id and menu, and user id (the creator of the restaurant).
+            </p>
+            <br>
+
+            <h5>Making a Request</h5>
+            <table class="table table-bordered">
+              <tbody>
+                <tr>
+                  <th scope="row" style="width: 120px">Method</th>
+                  <td>GET</td>
+                </tr>
+                <tr>
+                  <th scope="row">Base URL Path</th>
+                  <td>
+                    <pre>/api/restaurant/&#60;restaurant_id&#62;/</pre>
+                    Replace <code>&#60;restaurant_id&#62;</code> with the equivalent id from <code>/api/restaurants/</code>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Parameters</th>
+                  <td>None</td>
+                </tr>
+              </tbody>
+            </table>
+            <br>
+
+            <h5>Responses</h5>
+            <p><li>Upon a successful request:</li></p>
+            <pre class="response"><code>
+  {
+    "id": &#60;restaurant id&#62;,
+    "name": &#60;restaurant name&#62;,
+    "user_id": &#60;user id&#62;,
+    "restaurant_menu": [
+      {
+        "id": &#60;item id&#62;,
+        "name": &#60;item name&#62;,
+        "course": &#60;item course&#62;,
+        "description": &#60;item description&#62;,
+        "price": &#60;item price&#62;,
+        "restaurant_id": &#60;restaurant id&#62;,
+        "user_id": &#60;user id&#62;
+      },
+      .
+      .
+    ]
+  } 
+            </code></pre>
+
+            <p><li>In case restaurant id doesn't exist:</li></p>
+            <pre class="response"><code>
+  {
+    "success": false,
+    "description": "There is no restaurant with id:&#60;restaurant id&#62;"
+  }
+            </code></pre>
+          </div>
+          <!-- Add Restaurant -->
+          <div class="tab-pane fade" id="v-pills-1C" role="tabpanel" aria-labelledby="v-pills-1C-tab">
+            <h5>Usage</h5>
+            <p>
+              Add a new restaurant to the database
+            </p>
+            <br>
+
+            <h5>Making a Request</h5>
+            <table class="table table-bordered">
+              <tbody>
+                <tr>
+                  <th scope="row" style="width: 120px">Method</th>
+                  <td colspan="2">POST</td>
+                </tr>
+                <tr>
+                  <th scope="row">Base URL Path</th>
+                  <td colspan="2"><pre>/api/restaurants/</pre></td>
+                </tr>
+                <tr>
+                  <th scope="row" rowspan="2">Parameters</th>
+                  <td style="width: 100px">name</td>
+                  <td>A string, the name of the restaurant</td>
+                </tr>
+                <tr>
+                  <td>user_id</td>
+                  <td>An integer, the ID of the user creating the restaurant</td>
+                </tr>
+              </tbody>
+            </table>
+            <br>
+
+            <h5>Responses</h5>
+            <p><li>Upon a successful request:</li></p>
+            <pre class="response"><code>
+  {
+    "success": true,
+    "description": "A new restaurant has been added by user with id:&#60;user id&#62;"
+  }
+            </code></pre>
+
+            <p><li>In case of missing parameters:</li></p>
+            <pre class="response"><code>
+  {
+    "success": false,
+    "description": "One or more parameters is missing"
+  }
+            </code></pre>
+
+            <p><li>In case user id doesn't exist:</li></p>
+            <pre class="response"><code>
+  {
+    "success": false,
+    "description": "There is no user with id:&#60;user id&#62;"
+  }
+            </code></pre>
+          </div>
+          <!-- Rename Restaurant -->
+          <div class="tab-pane fade" id="v-pills-1D" role="tabpanel" aria-labelledby="v-pills-1D-tab">
+            <h5>Usage</h5>
+            <p>
+              Rename an existing restaurant
+            </p>
+            <br>
+
+            <h5>Making a Request</h5>
+            <table class="table table-bordered">
+              <tbody>
+                <tr>
+                  <th scope="row" style="width: 120px">Method</th>
+                  <td colspan="2">PUT</td>
+                </tr>
+                <tr>
+                  <th scope="row">Base URL Path</th>
+                  <td colspan="2">
+                    <pre>/api/restaurant/&#60;restaurant_id&#62;/</pre>
+                    Replace <code>&#60;restaurant_id&#62;</code> with the equivalent id from <code>/api/restaurants/</code>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Parameters</th>
+                  <td style="width: 100px">name</td>
+                  <td>A string, a new name for the restaurant</td>
+                </tr>
+              </tbody>
+            </table>
+            <br>
+
+            <h5>Responses</h5>
+            <p><li>Upon a successful request:</li></p>
+            <pre class="response"><code>
+  {
+    "success": true, 
+    "description": "Restaurant with id:&#60;restaurant id&#62; has been updated"
+  }
+            </code></pre>
+
+            <p><li>In case of missing parameters:</li></p>
+            <pre class="response"><code>
+  {
+    "success": false,
+    "description": "'name' parameter was not provided"
+  }
+            </code></pre>
+
+            <p><li>In case restaurant id doesn't exist:</li></p>
+            <pre class="response"><code>
+  {
+    "success": false,
+    "description": "There is no restaurant with id:&#60;restaurant id&#62;"
+  }
+            </code></pre>
+          </div>
+          <!-- Delete Restaurant -->
+          <div class="tab-pane fade" id="v-pills-1E" role="tabpanel" aria-labelledby="v-pills-1E-tab">
+            <h5>Usage</h5>
+            <p>
+              Delete a restaurant from the database
+            </p>
+            <br>
+
+            <h5>Making a Request</h5>
+            <table class="table table-bordered">
+              <tbody>
+                <tr>
+                  <th scope="row" style="width: 120px">Method</th>
+                  <td>DELETE</td>
+                </tr>
+                <tr>
+                  <th scope="row">Base URL Path</th>
+                  <td>
+                    <pre>/api/restaurant/&#60;restaurant_id&#62;/</pre>
+                    Replace <code>&#60;restaurant_id&#62;</code> with the equivalent id from <code>/api/restaurants/</code>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Parameters</th>
+                  <td>None</td>
+                </tr>
+              </tbody>
+            </table>
+            <br>
+
+            <h5>Responses</h5>
+            <p><li>Upon a successful request:</li></p>
+            <pre class="response"><code>
+  {
+    "success": true, 
+    "description": "Restaurant with id:&#60;restaurant id&#62; has been deleted"
+  }
+            </code></pre>
+
+            <p><li>In case restaurant id doesn't exist:</li></p>
+            <pre class="response"><code>
+  {
+    "success": false,
+    "description": "There is no restaurant with id:&#60;restaurant id&#62;"
+  }
+            </code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div> <!---------------------------->
+  
+  <!-- Menu Items API CRUD Documentations-->
+  <div class="tab-pane fade" id="nav-items" role="tabpanel" aria-labelledby="nav-items-tab">
+
+    <br>
+    <div class="row">
+      <div class="col-2">
+        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+          <a class="nav-link active" id="v-pills-2A-tab" data-toggle="pill" href="#v-pills-2A" role="tab" aria-controls="v-pills-2A" aria-selected="true">Menu Item Data</a>
+          <a class="nav-link" id="v-pills-2B-tab" data-toggle="pill" href="#v-pills-2B" role="tab" aria-controls="v-pills-2B" aria-selected="false">Add Menu Item</a>
+          <a class="nav-link" id="v-pills-2C-tab" data-toggle="pill" href="#v-pills-2C" role="tab" aria-controls="v-pills-2C" aria-selected="false">Update Menu Item</a>
+          <a class="nav-link" id="v-pills-2D-tab" data-toggle="pill" href="#v-pills-2D" role="tab" aria-controls="v-pills-2D" aria-selected="false">Delete Menu Item</a>
+        </div>
+      </div>
+      <div class="col-1"></div>
+      <div class="col-9">
+        <div class="tab-content" id="v-pills-tabContent">
+          <!-- Menu Item Data -->
+          <div class="tab-pane fade show active" id="v-pills-2A" role="tabpanel" aria-labelledby="v-pills-2A-tab">
+            <h5>Usage</h5>
+            <p>
+              For a specific menu item, obtain item's id, name, price, course, description and restaurant's id, name, and user id (the creator of the restaurant).
+            </p>
+            <br>
+
+            <h5>Making a Request</h5>
+            <table class="table table-bordered">
+              <tbody>
+                <tr>
+                  <th scope="row" style="width: 120px">Method</th>
+                  <td>GET</td>
+                </tr>
+                <tr>
+                  <th scope="row">Base URL Path</th>
+                  <td>
+                    <pre>/api/menu_item/&#60;item_id&#62;/</pre>
+                    Replace <code>&#60;item_id&#62;</code> with the equivalent id from <code>/api/restaurant/&#60;restaurant_id&#62;/</code>    
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Parameters</th>
+                  <td>None</td>
+                </tr>
+              </tbody>
+            </table>
+            <br>
+
+            <h5>Responses</h5>
+            <p><li>Upon a successful request:</li></p>
+            <pre class="response"><code>
+  {
+    "menu_item": {
+      "id": &#60;item id&#62;,
+      "name": &#60;item name&#62;,
+      "course": &#60;item course&#62;,
+      "description": &#60;item description&#62;,
+      "price": &#60;item price&#62;,
+      "restaurant_id": &#60;restaurant id&#62;,
+      "user_id": &#60;user id&#62;
+    },
+    "restaurant_id": &#60;restaurant id&#62;,
+    "restaurant_name": &#60;restaurant name&#62;  
+  }
+            </code></pre>
+
+            <p><li>In case item id doesn't exist:</li></p>
+            <pre class="response"><code>
+  {
+    "success": false,
+    "description": "There is no menu item with id:&#60;item id&#62;"
+  }
+            </code></pre>
+          </div>
+          <!-- Add Menu Item -->
+          <div class="tab-pane fade" id="v-pills-2B" role="tabpanel" aria-labelledby="v-pills-2B-tab">
+            <h5>Usage</h5>
+            <p>
+              Add a new menu item to an existing restaurant
+            </p>
+            <br>
+
+            <h5>Making a Request</h5>
+            <table class="table table-bordered">
+              <tbody>
+                <tr>
+                  <th scope="row" style="width: 120px">Method</th>
+                  <td colspan="2">POST</td>
+                </tr>
+                <tr>
+                  <th scope="row">Base URL Path</th>
+                  <td colspan="2">
+                    <pre>/api/restaurant/&#60;restaurant_id&#62;/</pre>
+                    Replace <code>&#60;restaurant_id&#62;</code> with the equivalent id from <code>/api/restaurants/</code>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" rowspan="5">Parameters</th>
+                  <td style="width: 100px">name</td>
+                  <td>A string, the name of the item</td>
+                </tr>
+                <tr>
+                  <td>price</td>
+                  <td>A string, the price of the item, preferably in the format '$XX.XX'</td>
+                </tr>
+                <tr>
+                  <td>course</td>
+                  <td>A string, the course of the meal</td>
+                </tr>
+                <tr>
+                  <td>description</td>
+                  <td>A string, a description for the item that makes it seem delicious</td>
+                </tr>
+                <tr>
+                  <td>user_id</td>
+                  <td>An integer, the ID of the user creating the restaurant</td>
+                </tr>
+              </tbody>
+            </table>
+            <br>
+
+            <h5>Responses</h5>
+            <p><li>Upon a successful request:</li></p>
+            <pre class="response"><code>
+  {
+    "success": true,
+    "description": "A new item has been added to restaurant with id:&#60;restaurant id&#62;"
+  }
+            </code></pre>
+
+            <p><li>In case restaurant id doesn't exist:</li></p>
+            <pre class="response"><code>
+  {
+    "success": false,
+    "description": "There is no restaurant with id:&#60;restaurant id&#62;"
+  }
+            </code></pre>
+
+            <p><li>In case of missing parameters:</li></p>
+            <pre class="response"><code>
+  {
+    "success": false,
+    "description": "One or more parameters is missing"
+  }
+            </code></pre>
+
+            <p><li>In case user id doesn't exist:</li></p>
+            <pre class="response"><code>
+  {
+    "success": false,
+    "description": "There is no user with id:&#60;user id&#62;"
+  }
+            </code></pre>
+
+          </div>
+          <!-- Update Menu Item -->
+          <div class="tab-pane fade" id="v-pills-2C" role="tabpanel" aria-labelledby="v-pills-2C-tab">
+            <h5>Usage</h5>
+            <p>
+              Update information for an existing menu item
+            </p>
+            <br>
+
+            <h5>Making a Request</h5>
+            <table class="table table-bordered">
+              <tbody>
+                <tr>
+                  <th scope="row" style="width: 120px">Method</th>
+                  <td colspan="2">PUT</td>
+                </tr>
+                <tr>
+                  <th scope="row">Base URL Path</th>
+                  <td colspan="2">
+                    <pre>/api/menu_item/&#60;item_id&#62;/</pre>
+                    Replace <code>&#60;item_id&#62;</code> with the equivalent id from <code>/api/restaurant/&#60;restaurant_id&#62;/</code>    
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" rowspan="4">Parameters</th>
+                  <td style="width: 100px">name</td>
+                  <td>A string, a new name for the item</td>
+                </tr>
+                <tr>
+                  <td>price</td>
+                  <td>A string, a new price for the item, preferably in the format '$XX.XX'</td>
+                </tr>
+                <tr>
+                  <td>course</td>
+                  <td>A string, a new course for the meal</td>
+                </tr>
+                <tr>
+                  <td>description</td>
+                  <td>A string, a new description for the item that makes it seem delicious</td>
+                </tr>
+              </tbody>
+            </table>
+            <br>
+
+            <h5>Responses</h5>
+            <p><li>Upon a successful request:</li></p>
+            <pre class="response"><code>
+  {
+    "success": true,
+    "description": "Item with id:&#60;item id&#62; has been updated"
+  }
+            </code></pre>
+
+            <p><li>In case item id doesn't exist:</li></p>
+            <pre class="response"><code>
+  {
+    "success": false,
+    "description": "There is no menu item with id:&#60;item id&#62;"
+  }
+            </code></pre>
+
+            <p><li>In case no parameters were provided:</li></p>
+            <pre class="response"><code>
+  {
+    "success": false,
+    "description": "No parameters were provided"
+  }
+            </code></pre>         
+          </div>
+          <!-- Delete Menu Item -->
+          <div class="tab-pane fade" id="v-pills-2D" role="tabpanel" aria-labelledby="v-pills-2D-tab">
+            <h5>Usage</h5>
+            <p>
+              Delete an item from a restaurant's menu
+            </p>
+            <br>
+
+            <h5>Making a Request</h5>
+            <table class="table table-bordered">
+              <tbody>
+                <tr>
+                  <th scope="row" style="width: 120px">Method</th>
+                  <td>DELETE</td>
+                </tr>
+                <tr>
+                  <th scope="row">Base URL Path</th>
+                  <td>
+                    <pre>/api/menu_item/&#60;item_id&#62;/</pre>
+                    Replace <code>&#60;item_id&#62;</code> with the equivalent id from <code>/api/restaurant/&#60;restaurant_id&#62;/</code>    
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Parameters</th>
+                  <td>None</td>
+                </tr>
+              </tbody>
+            </table> 
+            <br>
+
+            <h5>Responses</h5>
+            <p><li>Upon a successful request:</li></p>
+            <pre class="response"><code>
+  {
+    "success": true, 
+    "description": "Item with id:&#60;item id&#62; has been deleted"
+  }
+            </code></pre>
+
+            <p><li>In case item id doesn't exist:</li></p>
+            <pre class="response"><code>
+  {
+    "success": false,
+    "description": "There is no menu item with id:&#60;item id&#62;"
+  }
+            </code></pre>           
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div> <!---------------------------->
+  
+  <!-- Worldwide Search API CRUD Documentations-->
+  <div class="tab-pane fade" id="nav-search" role="tabpanel" aria-labelledby="nav-search-tab">
+
+    <br>
+    <div class="row">
+      <div class="col-2">
+        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+          <a class="nav-link active" id="v-pills-3A-tab" data-toggle="pill" href="#v-pills-3A" role="tab" aria-controls="v-pills-3A" aria-selected="true">Search for restaurants worldwide</a>
+        </div>
+      </div>
+      <div class="col-1"></div>
+      <div class="col-9">
+        <div class="tab-content" id="v-pills-tabContent">
+          <!-- Search for restaurants worldwide -->
+          <div class="tab-pane fade show active" id="v-pills-3A" role="tabpanel" aria-labelledby="v-pills-3A-tab">
+            <h5>Usage</h5>
+            <p>
+              Search for restaurants around a specific address that serve a specific meal anywhere in the world.
+            </p>
+            <br>
+
+            <h5>Making a Request</h5>
+            <table class="table table-bordered">
+              <tbody>
+                <tr>
+                  <th scope="row" style="width: 120px">Method</th>
+                  <td colspan="2">POST</td>
+                </tr>
+                <tr>
+                  <th scope="row">Base URL Path</th>
+                  <td colspan="2"><pre>/api/worldwide</pre></td>
+                </tr>
+                <tr>
+                  <th scope="row" rowspan="3">Parameters</th>
+                  <td style="width: 100px">address</td>
+                  <td>
+                    A string, an address to represent a center point to search around.
+                    Try to keep the address general to get more results.
+                    <br><br>
+                    ex: Egypt Cairo
+                  </td>
+                </tr>
+                <tr>
+                  <td>radius</td>
+                  <td>
+                    An integer, a number to represent the range of the search around the address point in meters.
+                    A reasonable search range is 3000 to 10000 meters.
+                  </td>
+                </tr>
+                <tr>
+                  <td>meal</td>
+                  <td>
+                    A string, a word that represents the main meal served by the restaurant 
+                    or a word included in the restaurant name.
+                    <br><br>
+                    ex: Pizza, Burger, Shawerma, KFC, ..
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <br>
+
+            <h5>Responses</h5>
+            <p><li>Upon a successful request:</li></p>
+            <pre class="response"><code>
+  {
+    "success": true,
+    "description": "Request was successful and yielded results",
+    "results": [
+      {
+        "restaurant_address": &#60;restaurant address&#62;,
+        "restaurant_name": &#60;restaurnt name&#62;,
+        "restaurant_photos": [
+          &#60;restaurant photo url&#62;
+        ]
+      },
+      .
+      .
+    ]
+  }
+            </code></pre>          
+
+            <p><li>In case of missing parameters:</li></p>
+            <pre class="response"><code>
+  {
+    "success": false,
+    "description": "One or more parameters is missing"
+  }
+            </code></pre>
+
+            <p><li>In case radius parameter is not integer:</li></p>
+            <pre class="response"><code>
+  {
+    "success": false,
+    "description": "'radius' parameter must be an integer"
+  }
+            </code></pre>
+
+            <p><li>In case the search didn't yeild any result:</li></p>
+            <pre class="response"><code>
+  {
+    "success": true,
+    "description": "No results were found. Try different values"
+  }
+            </code></pre>
+
+            <p><li>In case of error on the third-party APIs (usually because of the address parameter):</li></p>
+            <pre class="response"><code>
+  {
+    "success": false,
+    "description": "Somethig went wrong, please try another address"
+  }
+            </code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+  </div> <!---------------------------->
+
+</div>
+
 
 {% endblock %}
