@@ -1,5 +1,11 @@
 {% extends 'layout.html' %}
 
+{% block style %}
+<style>
+  .crud_icon:hover {color: #AFC936}
+</style>
+{% endblock %}
+
 {% block body %}
 
   {% with messages = get_flashed_messages() %}
@@ -19,11 +25,24 @@
     <div class="col-7 ml-2">
       <h3 style="display: inline-block;">{{ restaurant.name }}</h3>
       {% if is_owner %}
-      (
-      <a href="{{ url_for('edit_restaurant', restaurant_id=restaurant.id) }}">Edit</a> | 
-      <a href="{{ url_for('delete_restaurant', restaurant_id=restaurant.id) }}">Delete</a> | 
-      <a href="{{ url_for('add_menu_item', restaurant_id=restaurant.id) }}">Add Item</a>
-      )
+        <!-- Edit Restaurant icon -->
+        <a class="ml-2" title="Rename This Restaurant" data-toggle="modal" data-target="#edit_restaurant_modal">
+          <span class="crud_icon">
+            <i class="fas fa-edit fa-lg"></i>
+          </span>
+        </a>
+        <!-- Delete Restaurant icon -->
+        <a class="ml-2" title="Delete This Restaurant" data-toggle="modal" data-target="#delete_restaurant_modal">
+          <span class="crud_icon">
+            <i class="fas fa-trash-alt fa-lg"></i>
+          </span>
+        </a>
+        <!-- Add Menu Item icon -->
+        <a class="ml-2" title="Add New Menu Item" data-toggle="modal" data-target="#add_item_modal">
+          <span class="crud_icon">
+            <i class="fas fa-plus-circle fa-lg"></i>
+          </span>
+        </a>
       {% endif %}
     </div>
   </div>
@@ -43,6 +62,76 @@
     </div>
   </div>
   {% endfor %}
+  </div>
+
+
+  <!-- MODALS -->
+
+  <!-- Edit Retaurant Modal -->
+  <div class="modal fade" id="edit_restaurant_modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document" style="text-align: center">
+  <div class="modal-content">
+      <button type="button" class="close ml-auto mr-2" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+
+      <h5 class="modal-title mb-3">Rename Restaurant</h5>
+      <form action="{{ url_for('edit_restaurant', restaurant_id=restaurant.id) }}" method="post">
+        <input class="form-control mr-auto ml-auto mb-3" name="restaurant_new_name" type="text" placeholder="{{ restaurant.name }}" style="width:300px">
+        <button type="submit" class="btn btn-primary mb-3" style="width:100px">Edit</button>
+      </form>
+  </div>
+  </div>
+  </div>
+
+  <!-- Delete Retaurant Modal -->
+  <div class="modal fade" id="delete_restaurant_modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document" style="text-align: center">
+  <div class="modal-content">
+      <button type="button" class="close ml-auto mr-2" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+
+      <h5 class="modal-title mb-3">Are you sure you want to delete <i>{{restaurant.name}}</i> ?</h5>
+      <form action="{{ url_for('delete_restaurant', restaurant_id=restaurant.id) }}" method="post">
+        <button name="answer" value="yes" class="btn btn-primary mb-3" style="width:100px">YES</button>
+      </form>
+  </div>
+  </div>
+  </div>
+
+  <!-- Add Menu Item Modal -->
+  <div class="modal fade" id="add_item_modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document" style="text-align: center">
+  <div class="modal-content">
+      <button type="button" class="close ml-auto mr-2" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+
+      <h5 class="modal-title mb-3">Add New Menu Item</h5>
+      <form action="{{ url_for('add_menu_item', restaurant_id=restaurant.id) }}" method="post">
+        <input class="form-control mr-auto ml-auto mb-3" name="item_name" type="text" placeholder="Item Name" style="width:300px">
+        <input class="form-control mr-auto ml-auto mb-3" name="item_price" type="text" placeholder="Item Price" style="width:300px">
+        <textarea class="form-control mr-auto ml-auto mb-3" name="item_description" type="text" placeholder="Item Description" rows="3" style="width:300px"></textarea>
+        <div id="course_options" class="mr-auto ml-auto mb-3" style="width:300px; text-align: left">
+          <strong>Item Course:</strong>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="item_course" value="appetizer"> Appetizer
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="item_course" value="entree"> Entree
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="item_course" value="dessert"> Dessert
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="item_course" value="beverage"> Beverage
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mb-3" style="width:100px">Add</button>
+      </form>
+  </div>
+  </div>
   </div>
 
 {% endblock %}

@@ -2,7 +2,7 @@
 
 {% block style %}
 <style>
-  #add_restaurant_icon:hover {color: #AFC936}
+  .crud_icon:hover {color: #AFC936}
 </style>
 {% endblock %}
 
@@ -25,9 +25,9 @@
     <div class="col-8 ml-2">
       <h3 style="display: inline-block;">Restaurants</h3>
       {% if user %}
-        <!-- Add restaurant icon to trigger a Modal -->
+        <!-- Add Restaurant icon -->
         <a class="ml-2" title="Add New Restaurant" data-toggle="modal" data-target="#add_restaurant_modal">
-          <span id="add_restaurant_icon">
+          <span class="crud_icon">
             <i class="fas fa-plus-circle fa-lg"></i>
           </span>
         </a>
@@ -41,7 +41,7 @@
     {% endfor %}
   </div>
 
-  <!-- Add retaurant Modal -->
+  <!-- Add Retaurant Modal -->
   <div class="modal fade" id="add_restaurant_modal" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document" style="text-align: center">
   <div class="modal-content">
