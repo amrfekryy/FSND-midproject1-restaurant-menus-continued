@@ -58,7 +58,10 @@
   <!-- Navbar -->
   <nav class="navbar navbar-expand-sm sticky-top navbar-light bg-light">
     
-    <a class="navbar-brand mb-0 h1" href="{{url_for('index')}}">Restuarants and Menus</a>
+    <a class="navbar-brand ml-3 mb-0 h1" href="{{url_for('index')}}">
+      <img src="{{url_for('static', filename='logo.png')}}" width="30" height="30" class="d-inline-block align-top" alt="">
+      Restuarants and Menus
+    </a>
     
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -69,7 +72,7 @@
         <li class="nav-item">
           <a class="nav-link" href="{{url_for('api_management.api')}}">API</a>
         </li>
-        <li class="nav-item mr-3">
+        <li class="nav-item">
           <a class="nav-link" href="{{url_for('worldwide_mashup')}}">Worldwide</a>
         </li>
         {% if user %}
