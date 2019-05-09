@@ -62,7 +62,7 @@ def add_restaurant():
                 user_id=login_session['user_id'])
             session.add(new_restaurant)
             session.commit()
-            flash(f"New restaurant \"{restaurant_name}\" has been added")
+            flash(f"New restaurant \"{restaurant_name}\" has been added. Go to the restaurant to create the menu.")
             return redirect(url_for('index'))
         else:
             return "Name field is empty!"

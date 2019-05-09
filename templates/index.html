@@ -1,5 +1,11 @@
 {% extends 'layout.html' %}
 
+{% block style %}
+<style>
+  #add_restaurant_icon:hover {color: #AFC936}
+</style>
+{% endblock %}
+
 {% block body %}
 
   {% with messages = get_flashed_messages() %}
@@ -19,7 +25,12 @@
     <div class="col-8 ml-2">
       <h3 style="display: inline-block;">Restaurants</h3>
       {% if user %}
-      (<a href="{{ url_for('add_restaurant') }}">Add</a>)
+        <!-- Add restaurant icon to trigger a Modal -->
+        <a class="ml-2" title="Add New Restaurant" data-toggle="modal" data-target="#add_restaurant_modal">
+          <span id="add_restaurant_icon">
+            <i class="fas fa-plus-circle fa-lg"></i>
+          </span>
+        </a>
       {% endif %}
     </div>
   </div>
@@ -28,6 +39,23 @@
     {% for restaurant in restaurants_list %}
       <a href="{{ url_for('restaurant_menu', restaurant_id=restaurant.id) }}" class="list-group-item list-group-item-action">{{ restaurant.name }}</a>
     {% endfor %}
+  </div>
+
+  <!-- Add retaurant Modal -->
+  <div class="modal fade" id="add_restaurant_modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document" style="text-align: center">
+  <div class="modal-content">
+      <button type="button" class="close ml-auto mr-2" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+
+      <h5 class="modal-title mb-3">Add New Restaurant</h5>
+      <form action="{{ url_for('add_restaurant') }}" method="post">
+        <input class="form-control mr-auto ml-auto mb-3" name="restaurant_name" type="text" placeholder="Restaurant Name" style="width:300px">
+        <button type="submit" class="btn btn-primary mb-3" style="width:100px">Add</button>
+      </form>
+  </div>
+  </div>
   </div>
 
 {% endblock %}
