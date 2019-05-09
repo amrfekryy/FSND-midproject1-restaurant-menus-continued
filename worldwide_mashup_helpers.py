@@ -73,16 +73,20 @@ def get_restaurant_photos(venue_id, dimensions):
 	  else: 0, 'Unsuccessful request' 
 	"""
 	# make request
-	r = requests.get(
-		url=f'https://api.foursquare.com/v2/venues/{venue_id}/photos',
-		params={
-			'client_id': FS_CLIENT_ID,
-			'client_secret': FS_CLIENT_SECRET,
-			'v': datetime.date.today().strftime('%Y%m%d'), #YYYYMMDD
-			'group': 'venue'
-			# 'limit': 100, # no. of results up to 200
-			# 'offset': 100 # to page through results
-		})
+	try:
+		r = requests.get(
+			url=f'https://api.foursquare.com/v2/venues/{venue_id}/photos',
+			params={
+				'client_id': FS_CLIENT_ID,
+				'client_secret': FS_CLIENT_SECRET,
+				'v': datetime.date.today().strftime('%Y%m%d'), #YYYYMMDD
+				'group': 'venue'
+				# 'limit': 100, # no. of results up to 200
+				# 'offset': 100 # to page through results
+			})
+	except requests.exceptions.ConnectionError:
+		return 0, "Unsuccessful request"
+
 	# print(r.content) # explore response body
 	
 	# print response
