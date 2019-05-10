@@ -6,6 +6,81 @@
 </style>
 {% endblock %}
 
+{% block head %}
+<script>
+
+  function editItemModal(link) {
+    // get the data_holder div node
+    const data_holder = link.parentNode.children[5];
+    // set values on modal
+    document.querySelector('#edit_item_modal [name=item_new_name]').placeholder = data_holder.dataset.itemName
+    document.querySelector('#edit_item_modal [name=item_new_price]').placeholder = data_holder.dataset.itemPrice
+    document.querySelector('#edit_item_modal [name=item_new_description]').placeholder = data_holder.dataset.itemDescription
+    document.querySelector(`#edit_item_modal [value=${data_holder.dataset.itemCourse}]`).checked = true
+    // add item id to the dummy input
+    document.querySelector('#edit_item_modal [name=item_id_holder]').value = data_holder.dataset.itemId
+    // show modal
+    $('#edit_item_modal').modal('show')
+  }
+
+  function editItem() {
+
+    const item_id = document.querySelector('#edit_item_modal [name=item_id_holder]').value;
+    $("#edit_item_form").submit(function(e) 
+    {
+        e.preventDefault(); // Add this
+        $.ajax({
+            type: 'POST',
+            url: `/restaurants/${'{{restaurant.id}}'}/menu/${item_id}/edit`,
+            processData: false,
+            dataType: 'json',
+            data: $('#edit_item_form').serialize(),
+            success:function(data) {
+              window.location.href = `/restaurants/${'{{restaurant.id}}'}/menu/`;
+            },
+            error:function( xhr, err ) {
+              alert(err);
+            }
+        });
+    });
+  }
+
+  function deleteItemModal(link) {
+    // get the data_holder div node
+    const data_holder = link.parentNode.children[5];
+    // set item name on modal
+    document.querySelector('#delete_item_modal h5 i').innerHTML = data_holder.dataset.itemName
+    // add item id to the dummy input
+    document.querySelector('#delete_item_modal [name=item_id_holder]').value = data_holder.dataset.itemId
+    // show modal
+    $('#delete_item_modal').modal('show')
+  }
+
+  function deleteItem() {
+
+    const item_id = document.querySelector('#delete_item_modal [name=item_id_holder]').value;
+    $("#delete_item_form").submit(function(e) 
+    {
+        e.preventDefault(); // Add this
+        $.ajax({
+            type: 'POST',
+            url: `/restaurants/${'{{restaurant.id}}'}/menu/${item_id}/delete`,
+            processData: false,
+            dataType: 'json',
+            data: $('#delete_item_form').serialize(),
+            success:function(data) {
+              window.location.href = `/restaurants/${'{{restaurant.id}}'}/menu/`;
+            },
+            error:function( xhr, err ) {
+              alert(err);
+            }
+        });
+    });
+  }
+
+</script>
+{% endblock %}
+
 {% block body %}
 
   {% with messages = get_flashed_messages() %}
@@ -22,7 +97,7 @@
   {% endwith %}
 
   <div class="row mb-2">
-    <div class="col-7 ml-2">
+    <div class="col ml-2">
       <h3 style="display: inline-block;">{{ restaurant.name }}</h3>
       {% if is_owner %}
         <!-- Edit Restaurant icon -->
@@ -56,8 +131,16 @@
       <h6 class="card-subtitle mb-2 text-muted">{{ item.course }}</h6>
       <p class="card-text">{{ item.description }}</p>
       {% if is_owner %}
-      <a href="{{ url_for('edit_menu_item', restaurant_id=restaurant.id, item_id=item.id) }}" class="card-link">Edit</a>
-      <a href="{{ url_for('delete_menu_item', restaurant_id=restaurant.id, item_id=item.id) }}" class="card-link">Delete</a>
+      <a id="edit_item_link" class="card-link" href="#" onclick="editItemModal(this);">Edit</a>
+      <a id="delete_item_link" class="card-link" href="#" onclick="deleteItemModal(this);">Delete</a>
+      <!-- hold item data for JS -->
+      <div class="data_holder"
+        data-item-id="{{item.id}}"
+        data-item-name="{{item.name}}"
+        data-item-price="{{item.price}}"
+        data-item-course="{{item.course}}"
+        data-item-description="{{item.description}}"
+      ></div>
       {% endif %}
     </div>
   </div>
@@ -129,6 +212,61 @@
           </div>
         </div>
         <button type="submit" class="btn btn-primary mb-3" style="width:100px">Add</button>
+      </form>
+  </div>
+  </div>
+  </div>
+
+  <!-- Edit Menu Item Modal -->
+  <div class="modal fade" id="edit_item_modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document" style="text-align: center">
+  <div class="modal-content">
+      <button type="button" class="close ml-auto mr-2" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+
+      <h5 class="modal-title mb-3">Edit New Menu Item</h5>
+      <form id="edit_item_form">
+        <input class="form-control mr-auto ml-auto mb-3" name="item_new_name" type="text" placeholder="to be assigned by JS" style="width:300px">
+        <input class="form-control mr-auto ml-auto mb-3" name="item_new_price" type="text" placeholder="to be assigned by JS" style="width:300px">
+        <textarea class="form-control mr-auto ml-auto mb-3" name="item_new_description" type="text" placeholder="to be assigned by JS" rows="3" style="width:300px"></textarea>
+        <div id="course_options" class="mr-auto ml-auto mb-3" style="width:300px; text-align: left">
+          <strong>Item Course:</strong>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="item_new_course" value="appetizer"> Appetizer
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="item_new_course" value="entree"> Entree
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="item_new_course" value="dessert"> Dessert
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="item_new_course" value="beverage"> Beverage
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mb-3" onclick="editItem();" style="width:100px">Edit</button>
+        <!-- dummy input to hold item id -->
+        <input name="item_id_holder" type="text" style="display: none">
+      </form>
+  </div>
+  </div>
+  </div>
+
+  <!-- Delete Item Modal -->
+  <div class="modal fade" id="delete_item_modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document" style="text-align: center">
+  <div class="modal-content">
+      <button type="button" class="close ml-auto mr-2" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+
+      <h5 class="modal-title mb-3">Are you sure you want to delete <i>{{restaurant.name}}</i> ?</h5>
+      <form id="delete_item_form">
+        <input type="text" name="answer" value="yes" style="display: none">
+        <button type="submit" class="btn btn-primary mb-3" onclick="deleteItem();" style="width:100px">YES</button>
+        <!-- dummy input to hold item id -->
+        <input name="item_id_holder" type="text" style="display: none">
       </form>
   </div>
   </div>

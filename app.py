@@ -201,8 +201,9 @@ def edit_menu_item(restaurant_id, item_id):
         session.add(menu_item)
         session.commit()
         flash(f"Item \"{menu_item.name}\" has been edited")
-        return redirect(url_for('restaurant_menu', restaurant_id=restaurant_id))
-    
+        # return redirect(url_for('restaurant_menu', restaurant_id=restaurant_id))
+        return jsonify({})
+
     else:
         is_logged_in, is_owner = get_permissions(login_session.get('user_id'), restaurant)
         if not is_owner:
@@ -223,13 +224,16 @@ def delete_menu_item(restaurant_id, item_id):
     if request.method == 'POST':
 
         answer = request.form.get('answer')
+
+        print(answer)
+
         if answer == 'yes':
             session.delete(menu_item)
             session.commit()
             flash(f"Item \"{item_name}\" has been deleted")
+        # return redirect(url_for('restaurant_menu', restaurant_id=restaurant_id))
+        return jsonify({})
 
-        return redirect(url_for('restaurant_menu', restaurant_id=restaurant_id))
-    
     else:
         is_logged_in, is_owner = get_permissions(login_session.get('user_id'), restaurant)
         if not is_owner:
